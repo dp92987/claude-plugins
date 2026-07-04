@@ -12,7 +12,7 @@ way I'd write them.
 - **Application is unconditional**: `~/.claude/AGENTS.md` (symlinked from
   `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`) tells every coding agent to
   read `~/.claude/learning-loop-memory/preferences.md` and `examples.md`
-  before implementing. No skill routing involved.
+  before implementing or reviewing code. No skill routing involved.
 
 ## Layout
 

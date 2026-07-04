@@ -26,5 +26,5 @@ If any competent agent would already do it, it's noise.
 ## Ambiguity
 
 If you can't tell whether a correction is general taste or context-specific,
-don't guess. In interactive runs, ask (max 5 questions per session). In
-non-interactive runs, file it in the inbox with a `QUESTION:` line.
+don't guess. In interactive runs, ask. In non-interactive runs, file it in the
+inbox with a `QUESTION:` line.

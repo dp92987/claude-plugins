@@ -13,17 +13,21 @@ Maintain the user's engineering-style memory in `~/.claude/learning-loop-memory/
 
 All memory paths in this file are absolute under `~/.claude/learning-loop-memory/` — never create these files relative to the working directory.
 
-This skill never applies style itself. Application happens unconditionally because the user's AGENTS.md points coding agents at `preferences.md` and `examples.md` before implementing. Do not build any "load preferences before coding" mode — that path must not depend on skill routing.
+This skill never applies style itself. Application happens unconditionally because the user's AGENTS.md points coding agents at `preferences.md` and `examples.md` before implementing or reviewing code. Do not build any "load preferences before coding" mode — that path must not depend on skill routing.
 
 Rule quality standard: read `references/rule-format.md` (relative to this SKILL.md's directory) before writing any candidate rule.
 
-## Setup (first run only)
+## Setup (every run — cheap, reconciles the pointer)
 
-Check that the user's global agents file (`~/.claude/AGENTS.md`, which `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` symlink to — verify the symlinks actually exist before relying on this topology) contains a pointer like:
+Check that the user's global agents file (`~/.claude/AGENTS.md`, which `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` symlink to — verify the symlinks actually exist before relying on this topology) contains this canonical pointer:
 
-> Before implementing, read `~/.claude/learning-loop-memory/preferences.md` and `examples.md` — my conventions and exemplar files live there.
+> Before implementing or reviewing code, read `~/.claude/learning-loop-memory/preferences.md` and `examples.md` — my conventions and exemplar files live there.
 
-If it's missing, add it (ask before creating any file from scratch, and ask before writing to a non-symlinked location).
+The pointer lives in user-owned state outside the plugin, so plugin updates can't rewrite it — reconcile it here on each run so wording changes actually propagate:
+
+- **Missing entirely** — add it. Ask before creating `AGENTS.md` from scratch, and ask before writing to a non-symlinked location.
+- **Present and already matches** — do nothing (the common case; stay silent).
+- **Present but differs from the canonical wording** (e.g. an older phrasing, or it still points at a stale memory path) — show the user the exact diff and offer to update it to the canonical wording. Never rewrite it silently. Only touch the learning-loop pointer line(s); leave the rest of `AGENTS.md` untouched.
 
 ## Mode 1: Extract
 
@@ -34,7 +38,7 @@ Input: a transcript path (Claude Code session JSONL), or "this session" (use the
 3. Derive candidate rules: one sentence each, generalizable, positively phrased — point at an exemplar file rather than writing "don't". See `references/rule-format.md`.
 4. Ignore task-specific details, one-off decisions, temporary project context, and anything that is a guess rather than an observed preference. A correction the user made once about *this* feature is noise; a correction that would apply to the next ten PRs is signal.
 5. Dedupe against `preferences.md`, `examples.md`, and `inbox.md` before adding anything.
-6. Interactive run: interview the user about ambiguous candidates only — max 5 questions — asking whether the rule is general or context-specific and how they would word it.
+6. Interactive run: interview the user about ambiguous candidates only, asking whether the rule is general or context-specific and how they would word it.
 7. Non-interactive run (invoked headlessly from the SessionEnd hook): skip the interview; write all candidates to `~/.claude/learning-loop-memory/inbox.md`, marking ambiguous ones with a `QUESTION:` line for the next interactive run. Create `inbox.md` if it doesn't exist.
 8. Write confirmed/candidate rules to `~/.claude/learning-loop-memory/inbox.md` only. Never touch `preferences.md` or `examples.md` in this mode.
 9. End with a summary: what was learned, what looks worth saving, open questions.

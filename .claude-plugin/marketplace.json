@@ -3,12 +3,13 @@
   "owner": {
     "name": "dp92987"
   },
+  "description": "Personal Claude Code plugins by dp92987.",
   "plugins": [
     {
       "name": "learning-loop",
       "source": "./plugins/learning-loop",
       "description": "Self-learning loop for personal engineering style",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   ]
 }
