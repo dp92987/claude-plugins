@@ -26,6 +26,6 @@ Skills: `codex-implementation`, `codex-review`.
 
 ### [learning-loop](plugins/learning-loop/)
 
-Self-learning loop that captures personal engineering style — code style, architecture decisions, naming, testing preferences, things rejected in review — into memory files (`~/.claude/learning-loop-memory/`) that coding agents consume via an AGENTS.md pointer. Bundles a SessionEnd hook for automatic extraction from finished sessions.
+Self-learning loop that captures personal engineering style — code style, architecture decisions, naming, testing preferences, things rejected in review — into memory files (`~/.claude/learning-loop-memory/`). Claude Code consumes them via `@` imports in `~/.claude/CLAUDE.md`; Codex and other agents via the `~/.claude/AGENTS.md` pointer. Bundles a SessionEnd hook (disabled by default) for automatic extraction from finished sessions.
 
 Skills: `learning-loop`.
