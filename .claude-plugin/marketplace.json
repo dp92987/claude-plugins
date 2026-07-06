@@ -10,6 +10,12 @@
       "source": "./plugins/learning-loop",
       "description": "Self-learning loop for personal engineering style",
       "version": "0.2.0"
+    },
+    {
+      "name": "codex-tandem",
+      "source": "./plugins/codex-tandem",
+      "description": "Claude orchestrates, Codex codes: default routing of implementation work to Codex CLI with cross-model review",
+      "version": "0.1.0"
     }
   ]
 }
