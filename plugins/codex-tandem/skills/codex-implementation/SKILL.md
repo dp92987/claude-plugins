@@ -113,8 +113,14 @@ codex exec resume --last -c sandbox_mode="workspace-write" -o <out> "The tests f
 
 Cap this at 2 follow-up rounds. If Codex is still off track after that, take over and finish the implementation yourself — judge the output, not the delegation policy; completing it directly costs less than more loop rounds or shipping mediocre work. State plainly in the report that you took over and why.
 
-## Step 5: Report
+## Step 5: Independent review
 
-Tell the user: what Codex changed (files + substance), what you verified (build/test results, actual output), any fixes you made yourself, and anything left open. Attribute honestly — distinguish "Codex did X" from "I fixed Y".
+Once verification converges, get a second opinion on the final diff: run the codex-review skill against the Codex-authored changes. This isn't Codex re-reviewing its own work — a fresh review session has no memory of the implementing run's reasoning, so it can't rationalize that run's shortcuts. The two reviews are complementary: yours in Step 4 has conversation context and catches "this isn't what the brief meant"; the independent one has none and catches what the whole implementing session was blind to.
 
-Your diff review in Step 4 *is* the cross-model review — don't dispatch codex-review on Codex's own diff; a model re-reviewing its own work adds little. The time for a Codex review is ship time: when the branch is about to become a PR, offer a whole-branch codex-review as the fresh-eyes gate.
+Review the *final* state — after your fixes and any resume rounds — or you're reviewing stale code. Triage the findings as codex-review prescribes: confirmed real problems re-enter the Step 4 fix loop; trivia you fix directly.
+
+## Step 6: Report
+
+Tell the user: what Codex changed (files + substance), what you verified (build/test results, actual output), what the independent review found and how each finding was resolved, any fixes you made yourself, and anything left open. Attribute honestly — distinguish "Codex did X" from "I fixed Y".
+
+When the branch is about to become a PR, still offer the adversarial whole-branch codex-review — it's the only reviewer that sees the separately-reviewed changes composed together, and it sweeps up trivial edits that never got individual review.

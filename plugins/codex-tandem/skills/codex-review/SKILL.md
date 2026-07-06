@@ -1,11 +1,11 @@
 ---
 name: codex-review
-description: Get an independent code review from the OpenAI Codex CLI. Use whenever the user wants Codex's opinion on code — "codex review", "have codex review this", "get a second opinion from codex" — for uncommitted changes, a branch diff, or a specific commit. Under the session cross-review policy, also use it without being asked whenever code Claude wrote directly is about to be considered done, and offer it as a whole-branch gate before any PR ships. Code must never be reviewed only by its author model.
+description: Get an independent code review from the OpenAI Codex CLI. Use whenever the user wants Codex's opinion on code — "codex review", "have codex review this", "get a second opinion from codex" — for uncommitted changes, a branch diff, or a specific commit. Under the session review policy, also use it without being asked as the independent-review step of every codex-implementation run, whenever substantial code Claude wrote directly is about to be considered done (trivial edits wait for the branch gate), and as the adversarial whole-branch gate before any PR ships.
 ---
 
 # Codex Review
 
-Run OpenAI's Codex CLI as an independent, non-interactive code reviewer and present its findings. The value of this skill is the *independence*: Codex is a different model with no knowledge of this conversation, so it catches things you might be blind to — especially in code you wrote yourself. That makes its two primary targets under the cross-review policy: code Claude authored directly, and the whole branch as a pre-PR gate. Codex-authored diffs are already cross-reviewed by Claude inside codex-implementation — don't send them back to Codex. And Codex's output is evidence, not authority: you still read the code.
+Run OpenAI's Codex CLI as an independent, non-interactive code reviewer and present its findings. The value of this skill is the *independence*: a fresh review session has no knowledge of this conversation or of the session that wrote the code, so it catches what the author context is blind to — that holds even for Codex-authored diffs, because independence comes from the fresh session, not just the model. Its three occasions under the review policy: the final diff of every codex-implementation run, substantial code Claude authored directly (including takeovers), and the whole branch as an adversarial pre-PR gate. Trivial Claude edits skip per-change review — the branch gate sweeps them up. And Codex's output is evidence, not authority: you still read the code.
 
 ## Prerequisites
 

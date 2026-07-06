@@ -24,10 +24,14 @@ briefs, diff review, tests, and user communication; Codex writes the code.
   to the codex-implementation skill by default — do not implement them directly.
 - Exception: trivial edits (one-liners, typos, config tweaks, small fixes surfaced
   while reviewing a Codex diff) are faster done directly by Claude.
-- Cross-review rule: code is never reviewed only by its author model. Claude
-  reviews every Codex diff (built into codex-implementation). Use the codex-review
-  skill for code Claude wrote directly, and offer a whole-branch Codex review
-  before a PR ships.
+- Review rules:
+  - Codex-written code gets two reviews, both built into codex-implementation:
+    Claude's contextual diff review, then an independent codex-review of the
+    final diff (fresh session, no conversation context).
+  - Substantial Claude-written code (including takeovers after a failed
+    delegation) gets a codex-review before it is considered done.
+  - Trivial Claude edits skip immediate review; the adversarial whole-branch
+    codex-review offered before a PR ships sweeps them up.
 - Bulk read-only work (large code audits, log analysis, data crunching) can also
   be offloaded to Codex directly: `codex exec -s read-only` with a self-contained
   prompt. Claude still does the thinking-heavy research itself.

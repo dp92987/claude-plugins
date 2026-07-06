@@ -20,7 +20,7 @@ Then install a plugin:
 
 ### [codex-tandem](plugins/codex-tandem/)
 
-Claude orchestrates, Codex codes. A SessionStart hook routes bounded implementation work to the OpenAI Codex CLI by default: Claude does requirements, research, planning, briefs, and verification; Codex writes the code. Cross-model review is built in — Claude reviews every Codex diff, and the `codex-review` skill (with an adversarial pre-PR mode) covers code Claude wrote directly. Requires an installed and authenticated `codex` CLI.
+Claude orchestrates, Codex codes. A SessionStart hook routes bounded implementation work to the OpenAI Codex CLI by default: Claude does requirements, research, planning, briefs, and verification; Codex writes the code. Review is built in — every Codex diff gets Claude's contextual review plus an independent `codex-review`; substantial Claude-authored code is Codex-reviewed too, with an adversarial whole-branch gate before PRs. Requires an installed and authenticated `codex` CLI.
 
 Skills: `codex-implementation`, `codex-review`.
 
