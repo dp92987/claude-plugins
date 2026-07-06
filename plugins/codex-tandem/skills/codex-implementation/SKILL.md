@@ -25,9 +25,10 @@ You need to attribute changes to Codex afterward, so snapshot before dispatching
 
 ```bash
 git rev-parse HEAD && git status --porcelain
+git diff > <scratchpad>/codex-baseline.patch
 ```
 
-If the tree is already dirty, note which files — anything that changes beyond those is Codex's work. Don't require a clean tree; just know what was there.
+If the tree is dirty, the baseline patch is what makes attribution exact later — `git status` alone records *which* files were dirty, not what was in them, so without the patch a Codex edit to a WIP file is indistinguishable from the WIP. Dirty beyond trivial WIP, or anything else that might touch this checkout during a 5–20 minute run (another Claude session, another terminal)? Don't dispatch into it — give Codex its own worktree (`git worktree add`) and dispatch there with `-C <worktree-path>`.
 
 ## Step 2: Write the brief
 
@@ -80,12 +81,12 @@ Run with workspace-write sandbox (Codex edits repo files and runs commands, but 
 ```bash
 codex exec -s workspace-write --color never \
   -o <scratchpad>/codex-impl.md \
-  - <<'CODEX_BRIEF' 2>&1 | tail -20
+  - <<'CODEX_BRIEF' > <scratchpad>/codex-impl-run.log 2>&1
 <the brief>
 CODEX_BRIEF
 ```
 
-Run with `run_in_background: true` and wait. The run header Codex prints to stdout includes `session id: <uuid>` — record it from the log file as soon as it appears; every follow-up in Step 4 must resume this exact session. While waiting, prepare the verification: figure out the project's build/test commands if you don't know them yet.
+Keep the full run log — never pipe it through `tail`: the `session id: <uuid>` header is printed at the *top* of the run, and every follow-up in Step 4 must resume that exact session. Run with `run_in_background: true`, record the session id from the log as soon as the header appears, and wait. While waiting, prepare the verification: figure out the project's build/test commands if you don't know them yet.
 
 If Codex needs network access for the task itself (e.g., installing a new dependency), it will fail inside the sandbox — do that step yourself before or after dispatch rather than escalating Codex's sandbox.
 
@@ -103,7 +104,7 @@ When Codex finishes, don't relay its summary on faith — its final message desc
 
 Then act on what you find:
 
-- **Everything checks out** — report and stop.
+- **Everything checks out** — proceed to Step 5. The independent review is part of the success path, not an extra for suspicious runs; skipping it on clean-looking diffs is exactly how rationalized shortcuts ship.
 - **Trivial issues** (typo, missing import, formatting) — fix them yourself and say so.
 - **Real problems** (wrong approach, failing tests, incomplete work) — send Codex a follow-up in the same session so it keeps its context, then re-verify:
 
