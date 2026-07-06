@@ -9,10 +9,15 @@ way I'd write them.
 
 - **This skill only maintains memory.** It extracts candidate rules from
   sessions (Mode 1) and promotes approved ones (Mode 2).
-- **Application is unconditional**: `~/.claude/AGENTS.md` (symlinked from
-  `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`) tells every coding agent to
-  read `~/.claude/learning-loop-memory/preferences.md` and `examples.md`
-  before implementing or reviewing code. No skill routing involved.
+- **Application is file-based and unconditional**, one channel per agent:
+  - Claude Code: `~/.claude/CLAUDE.md` inlines `preferences.md` and
+    `examples.md` via `@` imports — loaded in full at launch, re-read from
+    disk after compaction, nothing for the model to skip. (Deliberately not
+    a SessionStart hook: hook output is capped at 10k chars, lost after
+    compaction, and duplicated on resume.)
+  - Codex and other agents: `~/.claude/AGENTS.md` (which `~/.codex/AGENTS.md`
+    symlinks to) tells them to read the same files before implementing or
+    reviewing code. No skill routing involved either way.
 
 ## Layout
 

@@ -1,6 +1,6 @@
 ---
 name: learning-loop
-description: Maintains a self-learning memory of the user's personal engineering style — code style, architecture decisions, naming, testing preferences, error handling, PR structure, refactoring habits, and things they reject in review — so AI coding agents produce PRs the way the user would write them. Use this skill whenever the user gives a session transcript path to learn from, or says things like "learn from this session", "extract my preferences", "what did you learn about my style", "review the learning loop inbox", "promote preferences", or "promote rules". This skill only MAINTAINS the style memory (extract candidates, curate, promote); it does NOT apply style during coding tasks — application happens via the AGENTS.md pointer to the memory files, independent of this skill.
+description: Maintains a self-learning memory of the user's personal engineering style — code style, architecture decisions, naming, testing preferences, error handling, PR structure, refactoring habits, and things they reject in review — so AI coding agents produce PRs the way the user would write them. Use this skill whenever the user gives a session transcript path to learn from, or says things like "learn from this session", "extract my preferences", "what did you learn about my style", "review the learning loop inbox", "promote preferences", or "promote rules". This skill only MAINTAINS the style memory (extract candidates, curate, promote); it does NOT apply style during coding tasks — application happens via CLAUDE.md @imports (Claude Code) and the AGENTS.md pointer (Codex and other agents), independent of this skill.
 ---
 
 # Learning Loop
@@ -13,21 +13,30 @@ Maintain the user's engineering-style memory in `~/.claude/learning-loop-memory/
 
 All memory paths in this file are absolute under `~/.claude/learning-loop-memory/` — never create these files relative to the working directory.
 
-This skill never applies style itself. Application happens unconditionally because the user's AGENTS.md points coding agents at `preferences.md` and `examples.md` before implementing or reviewing code. Do not build any "load preferences before coding" mode — that path must not depend on skill routing.
+This skill never applies style itself. Application happens through one channel per agent, both file-based and independent of this plugin's runtime: `~/.claude/CLAUDE.md` inlines `preferences.md` and `examples.md` into every Claude Code session via `@` imports (loaded in full at launch, re-read from disk after compaction — nothing for the model to skip), and `~/.claude/AGENTS.md` carries the prose pointer for agents that don't read CLAUDE.md (Codex reads `~/.codex/AGENTS.md`, a symlink to it, natively). Do not build any "load preferences before coding" mode — that path must not depend on skill routing. Do not replace the imports with a SessionStart hook: hook output is capped at 10k characters, is not re-injected after compaction, and duplicates on resume — imports have none of these problems.
 
 Rule quality standard: read `references/rule-format.md` (relative to this SKILL.md's directory) before writing any candidate rule.
 
-## Setup (every run — cheap, reconciles the pointer)
+## Setup (every run — cheap, reconciles the application files)
 
-Check that the user's global agents file (`~/.claude/AGENTS.md`, which `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` symlink to — verify the symlinks actually exist before relying on this topology) contains this canonical pointer:
+Two user-owned files deliver the memory, one per agent family. Verify both on each run — they live outside the plugin, so plugin updates can't rewrite them, and reconciling here is how wording changes propagate:
+
+**1. `~/.claude/CLAUDE.md` (Claude Code)** — a real file (not a symlink) whose canonical content inlines the memory via imports:
+
+> My engineering conventions and exemplar files (learning-loop memory), inlined via imports:
+>
+> `@~/.claude/learning-loop-memory/preferences.md`
+> `@~/.claude/learning-loop-memory/examples.md`
+
+**2. `~/.claude/AGENTS.md` (Codex and other agents; `~/.codex/AGENTS.md` symlinks to it — verify the symlink exists)** — the canonical prose pointer:
 
 > Before implementing or reviewing code, read `~/.claude/learning-loop-memory/preferences.md` and `examples.md` — my conventions and exemplar files live there.
 
-The pointer lives in user-owned state outside the plugin, so plugin updates can't rewrite it — reconcile it here on each run so wording changes actually propagate:
+For each file:
 
-- **Missing entirely** — add it. Ask before creating `AGENTS.md` from scratch, and ask before writing to a non-symlinked location.
+- **Missing entirely** — add it. Ask before creating a file from scratch, and ask before writing to an unexpected location or replacing a symlink.
 - **Present and already matches** — do nothing (the common case; stay silent).
-- **Present but differs from the canonical wording** (e.g. an older phrasing, or it still points at a stale memory path) — show the user the exact diff and offer to update it to the canonical wording. Never rewrite it silently. Only touch the learning-loop pointer line(s); leave the rest of `AGENTS.md` untouched.
+- **Present but differs from the canonical wording** (e.g. an older phrasing, or a stale memory path) — show the user the exact diff and offer to update it. Never rewrite it silently. Only touch the learning-loop lines; leave the rest of the file untouched.
 
 ## Mode 1: Extract
 
@@ -59,7 +68,7 @@ Run on request. Suggest running it when `inbox.md` has 10+ items.
 2. For each rule ask: can this become a golangci-lint or semgrep check instead? If yes, propose the lint/semgrep config, not a prose rule. Mechanical rules go to tooling; only judgment rules go to memory — a linter enforces forever at zero context cost.
 3. Merge the remaining rules into `preferences.md` / `examples.md`: dedupe, consolidate overlaps, apply the repo-prefix convention, and flag conflicts with existing rules — ask the user rather than silently overwriting.
 4. Size budget: `preferences.md` stays under 150 lines. Going past the cap requires merging rules or demoting the weakest. A section may graduate to its own file only when it exceeds ~50 lines (leave a pointer behind).
-5. Show the user the full proposed diff and WAIT for explicit approval. Never modify `preferences.md`, `examples.md`, or AGENTS.md without it.
+5. Show the user the full proposed diff and WAIT for explicit approval. Never modify `preferences.md`, `examples.md`, or the CLAUDE.md/AGENTS.md application files without it.
 6. Clear promoted items from `inbox.md`.
 
 ## Hook

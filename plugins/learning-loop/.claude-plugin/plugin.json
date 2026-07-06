@@ -1,7 +1,7 @@
 {
   "name": "learning-loop",
-  "version": "0.1.2",
-  "description": "Self-learning loop that captures the user's personal engineering style into memory files consumed by coding agents via AGENTS.md. Bundles a SessionEnd hook for automatic extraction.",
+  "version": "0.2.0",
+  "description": "Self-learning loop that captures the user's personal engineering style into memory files, applied via CLAUDE.md @imports (Claude Code) and an AGENTS.md pointer (Codex and other agents). Bundles a SessionEnd hook for automatic extraction.",
   "author": {
     "name": "dp92987"
   }
