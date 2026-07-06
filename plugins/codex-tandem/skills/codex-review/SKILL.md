@@ -93,8 +93,8 @@ If Codex found nothing, say so plainly and name what it inspected (e.g., "uncomm
 
 ## Iterating
 
-To ask Codex a follow-up about its own review (e.g., "is finding 2 really exploitable?"), resume the same session so it keeps its context:
+To ask Codex a follow-up about its own review (e.g., "is finding 2 really exploitable?"), resume the same session so it keeps its context. The review run's stdout header prints `session id: <uuid>` — resume that id rather than `--last`, which grabs whatever Codex session ran most recently (possibly not this review):
 
 ```bash
-codex exec resume --last -o <out> "your follow-up question"
+codex exec resume <review-session-id> -o <out> "your follow-up question"
 ```

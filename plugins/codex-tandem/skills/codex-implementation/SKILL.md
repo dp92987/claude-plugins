@@ -85,7 +85,7 @@ codex exec -s workspace-write --color never \
 CODEX_BRIEF
 ```
 
-Run with `run_in_background: true` and wait. While waiting, prepare the verification: figure out the project's build/test commands if you don't know them yet.
+Run with `run_in_background: true` and wait. The run header Codex prints to stdout includes `session id: <uuid>` — record it from the log file as soon as it appears; every follow-up in Step 4 must resume this exact session. While waiting, prepare the verification: figure out the project's build/test commands if you don't know them yet.
 
 If Codex needs network access for the task itself (e.g., installing a new dependency), it will fail inside the sandbox — do that step yourself before or after dispatch rather than escalating Codex's sandbox.
 
@@ -108,8 +108,10 @@ Then act on what you find:
 - **Real problems** (wrong approach, failing tests, incomplete work) — send Codex a follow-up in the same session so it keeps its context, then re-verify:
 
 ```bash
-codex exec resume --last -c sandbox_mode="workspace-write" -o <out> "The tests fail with: <error>. Fix it."
+codex exec resume <implementation-session-id> -c sandbox_mode="workspace-write" -o <out> "The tests fail with: <error>. Fix it."
 ```
+
+Resume by the session id recorded in Step 3, never `--last`: after Step 5 the most recent session is the *reviewer's*, and any other Codex run in between (another terminal, a parallel task) steals `--last` too — the follow-up would land in a context that never wrote the code.
 
 Cap this at 2 follow-up rounds. If Codex is still off track after that, take over and finish the implementation yourself — judge the output, not the delegation policy; completing it directly costs less than more loop rounds or shipping mediocre work. State plainly in the report that you took over and why.
 
@@ -117,7 +119,7 @@ Cap this at 2 follow-up rounds. If Codex is still off track after that, take ove
 
 Once verification converges, get a second opinion on the final diff: run the codex-review skill against the Codex-authored changes. This isn't Codex re-reviewing its own work — a fresh review session has no memory of the implementing run's reasoning, so it can't rationalize that run's shortcuts. The two reviews are complementary: yours in Step 4 has conversation context and catches "this isn't what the brief meant"; the independent one has none and catches what the whole implementing session was blind to.
 
-Review the *final* state — after your fixes and any resume rounds — or you're reviewing stale code. Triage the findings as codex-review prescribes: confirmed real problems re-enter the Step 4 fix loop; trivia you fix directly.
+Review the *final* state — after your fixes and any resume rounds — or you're reviewing stale code. Triage the findings as codex-review prescribes: confirmed real problems re-enter the Step 4 fix loop (resuming the recorded *implementation* session id, not the review session); trivia you fix directly.
 
 ## Step 6: Report
 

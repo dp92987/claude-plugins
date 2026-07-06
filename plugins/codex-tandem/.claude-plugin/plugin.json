@@ -1,6 +1,6 @@
 {
   "name": "codex-tandem",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Claude orchestrates, Codex codes. A SessionStart hook routes bounded implementation work to the Codex CLI by default; Claude plans, writes briefs, and reviews every Codex diff alongside an independent codex-review, with an adversarial whole-branch gate before PRs.",
   "author": {
     "name": "dp92987"

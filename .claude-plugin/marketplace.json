@@ -15,7 +15,7 @@
       "name": "codex-tandem",
       "source": "./plugins/codex-tandem",
       "description": "Claude orchestrates, Codex codes: default routing of implementation work to Codex CLI with independent review",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   ]
 }

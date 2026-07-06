@@ -16,7 +16,7 @@ Disable the routing policy without uninstalling: `touch ~/.claude/.codex-routing
 
 ## Skills
 
-- **codex-implementation** — Claude writes a self-contained brief (goal, acceptance criteria, constraints, verification), dispatches `codex exec -s workspace-write` in the background, then verifies the result (diff review + build/tests) and finishes with an independent `codex-review` of the final diff. Real problems go back to Codex via `codex exec resume --last`, capped at 2 rounds; past the cap, Claude takes over.
+- **codex-implementation** — Claude writes a self-contained brief (goal, acceptance criteria, constraints, verification), dispatches `codex exec -s workspace-write` in the background, then verifies the result (diff review + build/tests) and finishes with an independent `codex-review` of the final diff. Real problems go back to Codex via `codex exec resume <session-id>`, capped at 2 rounds; past the cap, Claude takes over.
 - **codex-review** — runs `codex exec review` against uncommitted changes, a branch, or a commit, passing task context so Codex isn't reviewing cold; Claude vets the findings, labels confirmed vs unverified, and offers to fix the valid ones. An adversarial mode ("find the strongest reasons this should not ship") backs the pre-PR gate.
 
 ## Learning-loop integration
