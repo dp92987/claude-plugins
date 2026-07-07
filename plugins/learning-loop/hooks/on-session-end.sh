@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # SessionEnd hook: headless learning-loop Mode 1 on the finished session's transcript.
-# Ships disabled — arm with: touch ~/.claude/learning-loop-memory/.enabled
+# On by default — turn off with: touch ~/.claude/learning-loop-memory/.disabled
 set -u
 
 MEMORY_DIR="$HOME/.claude/learning-loop-memory"
 
-# disabled by default (stays silent: absence of .enabled is user-checkable)
-[ -f "$MEMORY_DIR/.enabled" ] || exit 0
+# opt-out gate (stays silent: presence of .disabled is user-checkable)
+[ -f "$MEMORY_DIR/.disabled" ] && exit 0
 
 # recursion guard: the headless run below ends its own session and would re-fire this hook
 [ -n "${LEARNING_LOOP_ACTIVE:-}" ] && exit 0
@@ -38,7 +38,7 @@ echo "$(date -Is) extract: $TRANSCRIPT ($SIZE bytes)" >> "$MEMORY_DIR/extract.lo
 # preferences.md/examples.md, which every future session inlines.
 nohup env LEARNING_LOOP_ACTIVE=1 \
   claude -p "$PROMPT" \
-  --model haiku \
+  --model sonnet \
   --allowedTools "Read,Bash,Edit(//$HOME/.claude/learning-loop-memory/inbox.md),Write(//$HOME/.claude/learning-loop-memory/inbox.md)" \
   >> "$MEMORY_DIR/extract.log" 2>&1 &
 

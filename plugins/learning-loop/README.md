@@ -28,7 +28,7 @@ Plugin (this folder — versioned, immutable once installed):
   session JSONL: every genuine user message + edit/plan rejections, tool
   noise stripped (judging what's a correction is the model's job)
 - `skills/learning-loop/references/rule-format.md` — what a good rule looks like
-- `hooks/` — SessionEnd hook for automatic extraction (disabled by default)
+- `hooks/` — SessionEnd hook for automatic extraction (on by default)
 - `.claude-plugin/plugin.json` — plugin manifest
 
 State (outside the plugin, in `~/.claude/learning-loop-memory/` — survives
@@ -37,8 +37,8 @@ plugin updates, synced between machines separately):
 - `preferences.md` — approved rules (≤150 lines, repo-prefixed where specific)
 - `examples.md` — exemplar file pointers
 - `inbox.md` — candidates awaiting approval
-- `.enabled` — arms the SessionEnd hook (absent by default)
-- `extract.log` — headless extraction output
+- `.disabled` — turns the SessionEnd hook off (absent by default = hook active)
+- `extract.log` — headless extraction output and skip reasons
 
 ## Installation
 
@@ -53,22 +53,23 @@ The memory files and the AGENTS.md pointer are shared; only the trigger
 differs (Codex has no SessionEnd hook — use a cron sweep over
 `~/.codex/sessions/`).
 
-## Arming the automatic hook
+## The automatic hook
 
-The hook ships **disabled**: `hooks/on-session-end.sh` exits immediately unless
-`~/.claude/learning-loop-memory/.enabled` exists. After manual testing:
+The hook is **on by default**: every session end spawns a background
+`claude -p` (sonnet; Read/Bash plus Edit/Write path-scoped to `inbox.md`)
+running Mode 1 non-interactively on the transcript. Turn it off with:
 
 ```bash
-mkdir -p ~/.claude/learning-loop-memory
-touch ~/.claude/learning-loop-memory/.enabled
+touch ~/.claude/learning-loop-memory/.disabled
 ```
 
-Disarm with `rm ~/.claude/learning-loop-memory/.enabled`. When armed, session
-end spawns a background `claude -p` (haiku, tools limited to
-Read/Bash/Edit/Write) running Mode 1 non-interactively on the transcript.
-Safeguards: a `LEARNING_LOOP_ACTIVE` env guard prevents the headless run from
-re-triggering itself, and transcripts under 20KB are skipped. Output lands in
-`~/.claude/learning-loop-memory/extract.log`.
+Re-enable with `rm ~/.claude/learning-loop-memory/.disabled`. Safeguards: a
+`LEARNING_LOOP_ACTIVE` env guard prevents the headless run from re-triggering
+itself, transcripts under 20KB are skipped, and the path-scoped write
+permissions mean the headless run can never modify `preferences.md` or
+`examples.md`. Every skipped or started extraction logs one line to
+`~/.claude/learning-loop-memory/extract.log`, so "off" is distinguishable
+from "broken".
 
 The hook only fires when the folder is loaded **as a plugin** (hooks.json uses
 `${CLAUDE_PLUGIN_ROOT}`, so the folder is relocatable). Loaded as a plain
