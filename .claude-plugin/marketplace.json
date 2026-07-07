@@ -16,6 +16,12 @@
       "source": "./plugins/codex-tandem",
       "description": "Claude orchestrates, Codex codes: default routing of implementation work to Codex CLI with independent review",
       "version": "0.2.0"
+    },
+    {
+      "name": "jira-session-report",
+      "source": "./plugins/jira-session-report",
+      "description": "Post a session report (accomplishments + honest /usage cost and token metadata) as a Jira comment",
+      "version": "0.1.0"
     }
   ]
 }
