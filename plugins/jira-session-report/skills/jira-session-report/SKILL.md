@@ -1,17 +1,17 @@
 ---
 name: jira-session-report
 description: >-
-  Post a "Claude Code session report" comment on a Jira ticket — a full report of
-  what the session accomplished (task summary, PRs, review outcomes, deploy notes)
-  with the session metadata folded in: session link, total cost, API + wall
-  duration, code changes, and per-model token usage read from `/usage`. Use
-  whenever the user wants to record/log a session on a Jira issue: "add session
-  info to PROJ-1234", "post the session report to the ticket", "log this session on
-  jira", "add the usage/cost to the ticket", "report this session", or when
-  wrapping up a ticket / moving it to Done. Trigger even if they don't say the
-  word "report" — any request to put session, usage, cost, or "what I did"
-  information onto a Jira ticket should use this skill so the format and the
-  cost/token accounting stay consistent.
+  Use when the user wants to record a Claude Code work session onto a Jira ticket
+  — putting what got done this session (task summary, PRs, review results, deploy
+  notes) plus its cost, duration, code-change counts, and per-model token usage
+  (from `/usage`) into a ticket comment. Trigger on any request to comment on,
+  log, wrap up, or close out a Jira issue that mentions this session, its
+  cost/usage, the PRs opened, or "what we did" — e.g. "add session info to the
+  ticket", "wrap up PROJ-1234 with what got done and the cost", "record this
+  session on jira", "leave a comment on PROJ-1234 with the session cost and PRs",
+  "log today's work on PROJ-1234". Do NOT use for ordinary Jira comments unrelated
+  to the session (asking a reporter for repro steps), worklog time entries, or
+  PR-only comments.
 ---
 
 # Jira session report

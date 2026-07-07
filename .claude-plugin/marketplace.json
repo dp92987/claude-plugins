@@ -21,7 +21,7 @@
       "name": "jira-session-report",
       "source": "./plugins/jira-session-report",
       "description": "Post a session report (accomplishments + honest /usage cost and token metadata) as a Jira comment",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }
