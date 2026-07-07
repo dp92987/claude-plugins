@@ -31,7 +31,9 @@ briefs, diff review, tests, and user communication; Codex writes the code.
   - Substantial Claude-written code (including takeovers after a failed
     delegation) gets a codex-review before it is considered done.
   - Trivial Claude edits skip immediate review; the adversarial whole-branch
-    codex-review offered before a PR ships sweeps them up.
+    codex-review before a PR ships sweeps them up. That gate is enforced: a
+    PreToolUse hook blocks `gh pr create` until the branch review is recorded
+    (the codex-review skill records it; the user can ask to skip).
 - Bulk read-only work (large code audits, log analysis, data crunching) can also
   be offloaded to Codex directly: `codex exec -s read-only` with a self-contained
   prompt. Claude still does the thinking-heavy research itself.

@@ -15,7 +15,7 @@ Check once per session that Codex is available and authenticated:
 codex --version && codex login status
 ```
 
-If either fails, tell the user — they need to install Codex or run `codex login` themselves (it's interactive) — and offer to review the changes yourself instead. Don't substitute silently: the user asked for Codex's perspective, so that's their call.
+If either fails, tell the user and offer to review the changes yourself instead. Don't substitute silently — whether the review was requested or policy-triggered, name what's broken (install, or `codex login` — it's interactive) and note that a self-review is not the independent opinion the policy promises; the substitution is the user's call.
 
 ## Step 1: Pick the review target
 
@@ -39,7 +39,7 @@ codex exec review --uncommitted \
   > <scratchpad>/codex-review-run.log 2>&1
 ```
 
-Run this with `run_in_background: true` and wait for completion. The `-o` file gets Codex's final review message. Keep the full run log — never pipe it through `tail`: the `session id: <uuid>` header is printed at the *top*, and the Iterating section below needs it for follow-ups.
+Run this with `run_in_background: true` and wait for completion. The `-o` file gets Codex's final review message. Keep the full run log — never pipe it through `tail`: the `session id: <uuid>` header is printed at the *top*, and the Iterating section below needs it for follow-ups. (`<scratchpad>` = your session scratchpad directory if the environment defines one, else `mktemp -d`.)
 
 Codex reviews the diff cold — it has none of this conversation's context. When the change under review implements something discussed here (requirements, a bug being fixed, a design decision), pass that context as custom review instructions; it turns false positives ("why would anyone do X?") into real signal at the source.
 
@@ -74,6 +74,14 @@ say so directly.
 ```
 
 The stance matters for the gate: an *adversarial* review that comes back approving is a meaningful ship signal, where a neutral review's silence is weak evidence.
+
+The gate is enforced: a PreToolUse hook blocks `gh pr create` on branches with no recorded review. After completing a whole-branch adversarial review — findings presented, real ones resolved — record it:
+
+```bash
+touch "$(git rev-parse --absolute-git-dir)/codex-tandem-gate-$(git rev-parse --abbrev-ref HEAD | tr '/' '-')"
+```
+
+Record only then, not when the review starts — the marker asserts "this branch was reviewed and the findings were dealt with". If the user explicitly wants to ship unreviewed, create the marker and say you did.
 
 The preferences line matters because the native review flow focuses on the diff and may not consult the user's global agent instructions the way a normal Codex run does — asking explicitly makes style conformance part of the review.
 

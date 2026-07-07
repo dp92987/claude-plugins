@@ -17,7 +17,7 @@ Check once per session:
 codex --version && codex login status
 ```
 
-If either fails, tell the user — they need to install Codex or run `codex login` (it's interactive) — and offer to implement the task yourself instead. Don't just switch silently: the user asked for Codex specifically, so the substitution is their call.
+If either fails, tell the user and offer to implement the task yourself instead. Don't switch silently — under default routing the user may not even know Codex was involved, so name what's broken (install, or `codex login` — it's interactive) and what you propose to do. Whether they asked for Codex explicitly or the policy routed it, the substitution is their call.
 
 ## Step 1: Record the starting state
 
@@ -27,6 +27,8 @@ You need to attribute changes to Codex afterward, so snapshot before dispatching
 git rev-parse HEAD && git status --porcelain
 git diff HEAD > <scratchpad>/codex-baseline.patch
 ```
+
+(`<scratchpad>` throughout this skill = your session scratchpad directory if the environment defines one, else create one with `mktemp -d` and reuse it for the whole task.)
 
 If the tree is dirty, the baseline patch is what makes attribution exact later — `git status` alone records *which* files were dirty, not what was in them, so without the patch a Codex edit to a WIP file is indistinguishable from the WIP. Use `git diff HEAD` (plain `git diff` misses staged content), and copy any untracked WIP files aside too — no diff captures those. Dirty beyond trivial WIP, or anything else that might touch this checkout during a 5–20 minute run (another Claude session, another terminal)? Don't dispatch into it — give Codex its own worktree (`git worktree add`) and dispatch there with `-C <worktree-path>`.
 
@@ -120,7 +122,7 @@ Cap this at 2 follow-up rounds. If Codex is still off track after that, take ove
 
 Once verification converges, get a second opinion on the final diff: run the codex-review skill against the Codex-authored changes. This isn't Codex re-reviewing its own work — a fresh review session has no memory of the implementing run's reasoning, so it can't rationalize that run's shortcuts. The two reviews are complementary: yours in Step 4 has conversation context and catches "this isn't what the brief meant"; the independent one has none and catches what the whole implementing session was blind to.
 
-Review the *final* state — after your fixes and any resume rounds — or you're reviewing stale code. Triage the findings as codex-review prescribes: confirmed real problems re-enter the Step 4 fix loop (resuming the recorded *implementation* session id, not the review session); trivia you fix directly.
+Review the *final* state — after your fixes and any resume rounds — or you're reviewing stale code. If the tree was dirty at dispatch, scope the review: list the task's files in the review instructions ("Review only the changes to: <files>") so the user's unrelated WIP isn't judged alongside Codex's work. Triage the findings as codex-review prescribes: confirmed real problems re-enter the Step 4 fix loop (resuming the recorded *implementation* session id, not the review session); trivia you fix directly.
 
 ## Step 6: Report
 
