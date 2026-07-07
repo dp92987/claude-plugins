@@ -9,7 +9,7 @@
       "name": "learning-loop",
       "source": "./plugins/learning-loop",
       "description": "Self-learning loop for personal engineering style",
-      "version": "0.2.3"
+      "version": "0.3.0"
     },
     {
       "name": "codex-tandem",
