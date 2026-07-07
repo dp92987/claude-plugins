@@ -1,6 +1,6 @@
 ---
 name: codex-implementation
-description: Delegate an implementation task to the OpenAI Codex CLI — Codex writes the code, Claude verifies it. Under the session routing policy this is the DEFAULT way code gets written — use it for any bounded implementation task (feature, fix, refactor with clear scope), not only when the user names Codex. Also use for explicit asks like "have codex implement this", "let codex fix it", "delegate this to codex". Skip it only for trivial edits (one-liners, typos, config tweaks) where a Codex round-trip costs more than it saves.
+description: Delegate an implementation task to the OpenAI Codex CLI — Codex writes the code, Claude verifies it. When the codex-tandem routing policy is present in context (injected at session start), this is the DEFAULT way code gets written — use it for any bounded implementation task (feature, fix, refactor with clear scope), not only when the user names Codex. If that policy is absent (the user disabled routing), use it only on explicit asks like "have codex implement this", "let codex fix it", "delegate this to codex". Skip it for trivial edits (one-liners, typos, config tweaks) where a Codex round-trip costs more than it saves.
 ---
 
 # Codex Implementation
@@ -25,10 +25,10 @@ You need to attribute changes to Codex afterward, so snapshot before dispatching
 
 ```bash
 git rev-parse HEAD && git status --porcelain
-git diff > <scratchpad>/codex-baseline.patch
+git diff HEAD > <scratchpad>/codex-baseline.patch
 ```
 
-If the tree is dirty, the baseline patch is what makes attribution exact later — `git status` alone records *which* files were dirty, not what was in them, so without the patch a Codex edit to a WIP file is indistinguishable from the WIP. Dirty beyond trivial WIP, or anything else that might touch this checkout during a 5–20 minute run (another Claude session, another terminal)? Don't dispatch into it — give Codex its own worktree (`git worktree add`) and dispatch there with `-C <worktree-path>`.
+If the tree is dirty, the baseline patch is what makes attribution exact later — `git status` alone records *which* files were dirty, not what was in them, so without the patch a Codex edit to a WIP file is indistinguishable from the WIP. Use `git diff HEAD` (plain `git diff` misses staged content), and copy any untracked WIP files aside too — no diff captures those. Dirty beyond trivial WIP, or anything else that might touch this checkout during a 5–20 minute run (another Claude session, another terminal)? Don't dispatch into it — give Codex its own worktree (`git worktree add`) and dispatch there with `-C <worktree-path>`.
 
 ## Step 2: Write the brief
 

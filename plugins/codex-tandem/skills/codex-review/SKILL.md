@@ -1,6 +1,6 @@
 ---
 name: codex-review
-description: Get an independent code review from the OpenAI Codex CLI. Use whenever the user wants Codex's opinion on code — "codex review", "have codex review this", "get a second opinion from codex" — for uncommitted changes, a branch diff, or a specific commit. Under the session review policy, also use it without being asked as the independent-review step of every codex-implementation run, whenever substantial code Claude wrote directly is about to be considered done (trivial edits wait for the branch gate), and as the adversarial whole-branch gate before any PR ships.
+description: Get an independent code review from the OpenAI Codex CLI. Use whenever the user wants Codex's opinion on code — "codex review", "have codex review this", "get a second opinion from codex" — for uncommitted changes, a branch diff, or a specific commit. When the codex-tandem routing policy is present in context (injected at session start), also use it without being asked as the independent-review step of every codex-implementation run, whenever substantial code Claude wrote directly is about to be considered done (trivial edits wait for the branch gate), and as the adversarial whole-branch gate before any PR ships; if the policy is absent, only explicit asks trigger it.
 ---
 
 # Codex Review
@@ -36,10 +36,10 @@ Reviews run read-only and typically take 2–10 minutes with a strong reasoning 
 ```bash
 codex exec review --uncommitted \
   -o <scratchpad>/codex-review.md \
-  2>&1 | tail -50
+  > <scratchpad>/codex-review-run.log 2>&1
 ```
 
-Run this with `run_in_background: true` and wait for completion. The `-o` file gets Codex's final review message; stdout carries progress events you can tail to check on it.
+Run this with `run_in_background: true` and wait for completion. The `-o` file gets Codex's final review message. Keep the full run log — never pipe it through `tail`: the `session id: <uuid>` header is printed at the *top*, and the Iterating section below needs it for follow-ups.
 
 Codex reviews the diff cold — it has none of this conversation's context. When the change under review implements something discussed here (requirements, a bug being fixed, a design decision), pass that context as custom review instructions; it turns false positives ("why would anyone do X?") into real signal at the source.
 
@@ -87,7 +87,7 @@ Present as:
 
 1. **Verdict** — one line: overall assessment.
 2. **Findings by severity** — for each: file:line, what Codex found, and your take (confirmed / disagree and why / not verified). Keep Codex's substance, don't launder its criticism.
-3. **Offer to fix** — end by offering to fix the findings you agree are real. Don't fix anything until the user says so.
+3. **Offer to fix** — end by offering to fix the findings you agree are real. Don't fix anything until the user says so. Exception: when this review runs as the independent-review step inside codex-implementation, confirmed findings feed straight back into that skill's fix loop without asking — the user already authorized the implementation; ask-first governs reviews the user requested themselves.
 
 If Codex found nothing, say so plainly and name what it inspected (e.g., "uncommitted changes, 5 files") — a clean review is a useful result, not a failure.
 
