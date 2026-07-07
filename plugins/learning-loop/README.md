@@ -24,8 +24,9 @@ way I'd write them.
 Plugin (this folder — versioned, immutable once installed):
 
 - `skills/learning-loop/SKILL.md` — modes and rules of engagement
-- `skills/learning-loop/scripts/find-corrections.sh` — jq pre-filter over
-  session JSONL for correction signals
+- `skills/learning-loop/scripts/find-corrections.sh` — jq distiller over
+  session JSONL: every genuine user message + edit/plan rejections, tool
+  noise stripped (judging what's a correction is the model's job)
 - `skills/learning-loop/references/rule-format.md` — what a good rule looks like
 - `hooks/` — SessionEnd hook for automatic extraction (disabled by default)
 - `.claude-plugin/plugin.json` — plugin manifest
