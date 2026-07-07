@@ -1,4 +1,4 @@
-# jira-session-report
+# session-report-for-jira
 
 Post a "Claude Code session report" comment on a Jira ticket: a summary of what
 the session accomplished (task, PRs, review outcomes, deploy notes) plus the

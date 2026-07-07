@@ -30,7 +30,7 @@ Claude orchestrates, Codex codes. A SessionStart hook routes bounded implementat
 
 Skills: `codex-implementation`, `codex-review`.
 
-### [jira-session-report](plugins/jira-session-report/)
+### [session-report-for-jira](plugins/session-report-for-jira/)
 
 Post a "Claude Code session report" comment on a Jira ticket: what the session accomplished (task, PRs, review outcomes, deploy notes) plus session metadata — session link, cost, API/wall duration, code changes, and per-model token usage. Numbers come only from the user's pasted `/usage` output; the skill never estimates or fabricates them. Resolves the ticket from the branch name, previews the comment before posting, and never transitions the ticket. Requires the Atlassian MCP server.
 

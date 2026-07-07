@@ -18,8 +18,8 @@
       "version": "0.2.0"
     },
     {
-      "name": "jira-session-report",
-      "source": "./plugins/jira-session-report",
+      "name": "session-report-for-jira",
+      "source": "./plugins/session-report-for-jira",
       "description": "Post a session report (accomplishments + honest /usage cost and token metadata) as a Jira comment",
       "version": "0.1.1"
     }

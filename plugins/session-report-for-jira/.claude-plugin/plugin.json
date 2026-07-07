@@ -1,5 +1,5 @@
 {
-  "name": "jira-session-report",
+  "name": "session-report-for-jira",
   "version": "0.1.1",
   "description": "Post a Claude Code session report as a Jira comment: what the session accomplished plus honest cost/duration/token metadata from /usage. Never invents the numbers. Requires the Atlassian MCP server.",
   "author": {
