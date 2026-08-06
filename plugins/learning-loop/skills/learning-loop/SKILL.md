@@ -86,6 +86,17 @@ Run on request. Suggest running it when `inbox.md` has 10+ items.
 6. Show the user the full proposed diff and WAIT for explicit approval. Never modify the memory sources or the CLAUDE.md/AGENTS.md application files without it.
 7. After approval: run `scripts/compile-channels.sh` to regenerate the rules files and the AGENTS.md block, then clear promoted items from `inbox.md`.
 
+## The review command (not a skill mode)
+
+`/learning-loop:review` (`commands/review.md`) checks the current change
+against the approved memory: diff-scoped, report-only, every finding cites the
+rule it violates. It delegates to the `style-reviewer` subagent and feeds
+disputed rules back to `inbox.md` as curation candidates. It lives outside this
+skill on purpose — this skill maintains memory; the command *verifies* code
+against it after the fact. Neither is the application channel: application
+stays file-based (the compiled channels above) and must not depend on skill or
+command routing.
+
 ## Hook
 
 `hooks/hooks.json` registers a SessionEnd hook (`hooks/on-session-end.sh`) that invokes Mode 1 headlessly on the finished session's transcript — with sonnet by default; `~/.claude/learning-loop-memory/model` (one line: `haiku`, `opus`, or a full model ID) overrides the model for both the hook and the sweep — using the slash-form skill invocation (`/learning-loop:learning-loop ...` — the documented way to load a skill in a `claude -p` run). Edit/Write are path-scoped to `inbox.md` so the headless run can never touch `preferences.md` or `examples.md`, which every future session inlines. It runs by default; `touch ~/.claude/learning-loop-memory/.disabled` turns it off (it then exits silently). While active, every skipped or started extraction logs one line to `extract.log`, so "off" is distinguishable from "broken". See `README.md` for safety details (recursion guard, minimum transcript size).

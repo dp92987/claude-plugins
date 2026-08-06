@@ -9,6 +9,14 @@ way I'd write them.
 
 - **This skill only maintains memory.** It extracts candidate rules from
   sessions (Mode 1) and promotes approved ones (Mode 2).
+- **`/learning-loop:review` verifies compliance on demand.** The rules load
+  into every session, but loading doesn't guarantee the model followed them.
+  The command reviews the current change (uncommitted + branch diff vs master,
+  introduced lines only) against the approved memory via an independent
+  `style-reviewer` subagent. Report-only; every finding quotes the exact rule
+  or exemplar it violates — a finding without a citable rule is dropped. When
+  a finding exposes a bad *rule*, the objection goes to `inbox.md` as a
+  curation candidate, so reviews feed the loop too.
 - **Application is file-based and unconditional**, three compiled channels
   kept in sync by `scripts/compile-channels.sh`:
   - Claude Code, universal taste: `~/.claude/CLAUDE.md` inlines
@@ -46,6 +54,11 @@ Plugin (this folder — versioned, immutable once installed):
 - `agents/learning-extractor.md` — sonnet subagent that interactive Mode 1
   delegates extraction to, so mining a transcript doesn't run on the main
   session's (possibly pricier) model; returns candidates, never writes files
+- `commands/review.md` — the `/learning-loop:review` command: diff-scoped,
+  report-only compliance review against the approved memory
+- `agents/style-reviewer.md` — subagent the review command delegates to
+  (model: inherit — review judgment should match the session); returns
+  rule-citing findings, never writes files
 - `hooks/` — SessionEnd hook for automatic extraction (on by default)
 - `.claude-plugin/plugin.json` — plugin manifest
 
