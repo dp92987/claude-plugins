@@ -43,6 +43,9 @@ Plugin (this folder — versioned, immutable once installed):
   over `~/.claude/projects/` catching sessions the hook missed (`/exit`,
   crashes, resumes); run it from cron/systemd (see below)
 - `skills/learning-loop/references/rule-format.md` — what a good rule looks like
+- `agents/learning-extractor.md` — sonnet subagent that interactive Mode 1
+  delegates extraction to, so mining a transcript doesn't run on the main
+  session's (possibly pricier) model; returns candidates, never writes files
 - `hooks/` — SessionEnd hook for automatic extraction (on by default)
 - `.claude-plugin/plugin.json` — plugin manifest
 
@@ -57,6 +60,7 @@ plugin updates, synced between machines separately):
 - `inbox.md` — candidates awaiting approval
 - `ledger.tsv` — processed-transcript ledger (path + bytes)
 - `.disabled` — turns the SessionEnd hook and sweep off (absent by default = active)
+- `model` — model for headless extraction runs, one line (absent = sonnet)
 - `extract.log` — headless extraction output and skip reasons
 
 ## Installation
@@ -75,14 +79,31 @@ differs (Codex has no SessionEnd hook — use a cron sweep over
 ## The automatic hook
 
 The hook is **on by default**: every session end spawns a background
-`claude -p` (sonnet; Read/Bash plus Edit/Write path-scoped to `inbox.md`)
-running Mode 1 non-interactively on the transcript. Turn it off with:
+`claude -p` (sonnet by default; Read/Bash plus Edit/Write path-scoped to
+`inbox.md`) running Mode 1 non-interactively on the transcript. Turn it
+off with:
 
 ```bash
 touch ~/.claude/learning-loop-memory/.disabled
 ```
 
-Re-enable with `rm ~/.claude/learning-loop-memory/.disabled`. Safeguards: a
+Re-enable with `rm ~/.claude/learning-loop-memory/.disabled`. Pick the
+extraction model (used by both the hook and the sweep) with:
+
+```bash
+echo haiku > ~/.claude/learning-loop-memory/model   # haiku, opus, or a full model ID
+```
+
+Remove the file to go back to sonnet. Each extraction logs the model it
+ran with, and a bad model name surfaces as a `claude` error in
+`extract.log`.
+
+The same file steers interactive "learn from this session" runs: Mode 1
+delegates extraction to the bundled `learning-extractor` subagent (sonnet
+by default), passing the file's value as the model override when it is an
+alias (`haiku`/`sonnet`/`opus`); full model IDs apply to headless runs
+only. The interview and inbox writes stay in the main session — the
+subagent can't talk to the user and has no write access. Safeguards: a
 `LEARNING_LOOP_ACTIVE` env guard prevents the headless run from re-triggering
 itself, transcripts under 20KB are skipped, the ledger skips transcripts
 already processed at their current size, and the path-scoped write

@@ -15,6 +15,10 @@ command -v jq >/dev/null 2>&1 || exit 0
 command -v claude >/dev/null 2>&1 || exit 0
 mkdir -p "$MEMORY_DIR"
 
+# model for the headless runs — override with e.g.: echo haiku > ~/.claude/learning-loop-memory/model
+MODEL="$(head -n1 "$MEMORY_DIR/model" 2>/dev/null | tr -d '[:space:]')"
+: "${MODEL:=sonnet}"
+
 log() { echo "$(date -Is) sweep: $1" >> "$MEMORY_DIR/extract.log"; }
 ledger_get() { awk -F'\t' -v p="$1" '$1==p{s=$2} END{print s}' "$LEDGER" 2>/dev/null; }
 ledger_put() { { grep -vF "$1	" "$LEDGER" 2>/dev/null; printf '%s\t%s\n' "$1" "$2"; } > "$LEDGER.tmp" && mv "$LEDGER.tmp" "$LEDGER"; }
@@ -42,10 +46,10 @@ for T in "$HOME"/.claude/projects/*/*.jsonl; do
   # cap guard sits before dispatch so a cap of N means at most N extractions
   [ "$COUNT" -ge "$MAX" ] && { log "reached per-run cap ($MAX)"; break; }
 
-  log "extract: $T ($SIZE bytes)"
+  log "extract [$MODEL]: $T ($SIZE bytes)"
   env LEARNING_LOOP_ACTIVE=1 \
     claude -p "/learning-loop:learning-loop Mode 1, non-interactive, on transcript: $T" \
-    --model sonnet \
+    --model "$MODEL" \
     --allowedTools "Read,Bash,Edit(//$HOME/.claude/learning-loop-memory/inbox.md),Write(//$HOME/.claude/learning-loop-memory/inbox.md)" \
     >> "$MEMORY_DIR/extract.log" 2>&1
   ledger_put "$T" "$SIZE"

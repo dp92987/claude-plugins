@@ -33,12 +33,16 @@ LEDGER="$MEMORY_DIR/ledger.tsv"
 REC="$(awk -F'\t' -v p="$TRANSCRIPT" '$1==p{s=$2} END{print s}' "$LEDGER" 2>/dev/null)"
 [ -n "$REC" ] && [ "$SIZE" -le "$REC" ] && skip "already processed at $REC bytes: $TRANSCRIPT"
 
+# model for the headless run — override with e.g.: echo haiku > ~/.claude/learning-loop-memory/model
+MODEL="$(head -n1 "$MEMORY_DIR/model" 2>/dev/null | tr -d '[:space:]')"
+: "${MODEL:=sonnet}"
+
 # slash-form invocation is the documented headless way to load a skill;
 # a prose "use the skill" prompt may never load SKILL.md at all
 PROMPT="/learning-loop:learning-loop Mode 1, non-interactive, on transcript: $TRANSCRIPT"
 
 mkdir -p "$MEMORY_DIR"
-echo "$(date -Is) extract: $TRANSCRIPT ($SIZE bytes)" >> "$MEMORY_DIR/extract.log"
+echo "$(date -Is) extract [$MODEL]: $TRANSCRIPT ($SIZE bytes)" >> "$MEMORY_DIR/extract.log"
 { grep -vF "$TRANSCRIPT	" "$LEDGER" 2>/dev/null; printf '%s\t%s\n' "$TRANSCRIPT" "$SIZE"; } > "$LEDGER.tmp" && mv "$LEDGER.tmp" "$LEDGER"
 
 # background so we don't delay Claude Code shutdown; log for debugging.
@@ -46,7 +50,7 @@ echo "$(date -Is) extract: $TRANSCRIPT ($SIZE bytes)" >> "$MEMORY_DIR/extract.lo
 # preferences.md/examples.md, which every future session inlines.
 nohup env LEARNING_LOOP_ACTIVE=1 \
   claude -p "$PROMPT" \
-  --model sonnet \
+  --model "$MODEL" \
   --allowedTools "Read,Bash,Edit(//$HOME/.claude/learning-loop-memory/inbox.md),Write(//$HOME/.claude/learning-loop-memory/inbox.md)" \
   >> "$MEMORY_DIR/extract.log" 2>&1 &
 
