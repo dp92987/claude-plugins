@@ -75,6 +75,9 @@ plugin updates, synced between machines separately):
   parent file — same compile channel as stack files
 - `examples.md` — exemplar file pointers
 - `inbox.md` — candidates awaiting approval
+- `archive.md` — rules demoted under a file cap: moved, never deleted (the
+  cap escalation is dedupe → exemplar-compress → lint extraction → topic
+  split → archive as the last resort; nothing is silently dropped)
 - `ledger.tsv` — processed-transcript ledger (path + bytes)
 - `.disabled` — turns the SessionEnd hook and sweep off (absent by default = active)
 - `model` — model for headless extraction runs, one line (absent = sonnet)

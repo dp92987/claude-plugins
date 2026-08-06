@@ -14,6 +14,7 @@ Memory sources live in `~/.claude/learning-loop-memory/` (create the directory i
 - `preferences-repo-<name>.md` — approved rules for one repo, scoped by `paths: ["**/<name>/**"]` (the repo directory name appears in both the main checkout and every worktree path, so one glob covers both). This is a *graduation target*, not the default: while a repo has only a handful of rules, they stay `repo:`-prefixed inside `preferences.md` or the matching stack file. Graduate to a repo file only when those rules crowd their parent file. To the compiler it's an ordinary stack file. Cap: 150 lines.
 - `examples.md` — exemplar pointers ("when doing X, follow the pattern in `<repo>:<file/dir>`"). Prefer these over abstract rules — a real file teaches more than a sentence.
 - `inbox.md` — pending candidates awaiting the user's approval, each with the triggering quote as an HTML comment for provenance.
+- `archive.md` — rules demoted under a file cap (Mode 2, step 5), moved here with explicit approval — never deleted. Wired into no channel, so it costs no context; a future promote can resurrect an entry.
 - `ledger.tsv` — processed-transcript ledger (path + bytes), maintained by the hook and sweep; not yours to edit.
 
 All memory paths in this file are absolute under `~/.claude/learning-loop-memory/` — never create these files relative to the working directory.
@@ -83,7 +84,12 @@ Run on request. Suggest running it when `inbox.md` has 10+ items.
 2. For each rule ask: can this become a golangci-lint or semgrep check instead? If yes, propose the lint/semgrep config, not a prose rule. Mechanical rules go to tooling; only judgment rules go to memory — a linter enforces forever at zero context cost.
 3. Route each remaining rule to its source file: universal taste → `preferences.md`; stack-specific → the matching `preferences-<stack>.md` (create a new stack file, with `paths:` frontmatter, only when a rule fits no existing one); repo-specific style → `repo:`-prefixed inside the file it would otherwise belong to, graduating to `preferences-repo-<name>.md` (`paths: ["**/<name>/**"]`) only when a repo's rules crowd their parent file. Per-project *facts* (build commands, repo layout) are not style — leave those to Claude Code's auto memory; don't promote them.
 4. While merging: dedupe, consolidate overlaps, apply the repo-prefix convention, and flag conflicts with existing rules — ask the user rather than silently overwriting.
-5. Size budget: 150 lines per source file. Going past the cap requires merging rules or demoting the weakest. If a section graduates to a new file, it must be wired into a channel in the same change — `paths:` frontmatter + compile for stack files, or an `@` import in CLAUDE.md for universal ones. A bare prose pointer silently detaches the rules from every agent.
+5. Size budget: 150 lines per source file. The cap is an attention budget, not a storage limit — every line in a matching file loads into the session. When a file hits it, escalate in this order and stop at the first step that gets under the cap; no rule is ever silently dropped:
+   1. Dedupe and merge overlapping rules.
+   2. Compress by converting prose to an exemplar pointer (`examples.md` style) — never by rewording that weakens a rule's meaning; the precision in a rule is usually the rule.
+   3. Extract mechanical rules to lint/semgrep (step 2) — the only step that cuts context load with zero loss.
+   4. Split a topic into a new file, with a *narrower* `paths:` scope where one exists — a split with identical globs protects content but still loads everything into the same sessions. The new file must be wired into a channel in the same change — `paths:` frontmatter + compile for stack files, or an `@` import in CLAUDE.md for universal ones. A bare prose pointer silently detaches the rules from every agent.
+   5. Last resort: demote the weakest rules to `archive.md` — a move, never a deletion, and only with the user's explicit approval.
 6. Show the user the full proposed diff and WAIT for explicit approval. Never modify the memory sources or the CLAUDE.md/AGENTS.md application files without it.
 7. After approval: run `scripts/compile-channels.sh` to regenerate the rules files and the AGENTS.md block, then clear promoted items from `inbox.md`.
 
