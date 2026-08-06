@@ -69,6 +69,10 @@ plugin updates, synced between machines separately):
 - `preferences-<stack>.md` — approved stack-specific rules with `paths:`
   frontmatter (e.g. `preferences-go-backend.md`); compiled into
   `~/.claude/rules/`
+- `preferences-repo-<name>.md` — single-repo rules scoped by
+  `paths: ["**/<name>/**"]` (matches the main checkout and worktrees);
+  graduation target once a repo's `repo:`-prefixed rules crowd their
+  parent file — same compile channel as stack files
 - `examples.md` — exemplar file pointers
 - `inbox.md` — candidates awaiting approval
 - `ledger.tsv` — processed-transcript ledger (path + bytes)
