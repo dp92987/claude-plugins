@@ -33,12 +33,17 @@ Skills: `codex-implementation`, `codex-review`.
 ### [jira-ticket-creator](plugins/jira-ticket-creator/)
 
 Create a Jira ticket with the team's defaults (project, type, `Inbox` status,
-component, type + project labels, Fibonacci story points, epic in `Parent`, story
-linked as "split from", sprint on request) and a description written in two
-layers: an intro paragraph for a human with a one-line `DOD:`, then a technical
-spec — files, methods, exemplar, traps, tests, base branch — that an agent can
-start from with no conversation context. Every fact is verified in its primary
-source first; the draft is previewed before anything is created.
+component, one type label plus a label per affected project, story points on the
+team's published scale, epic in `Parent`, story linked as "split from", sprint on
+request) and a description shaped by the issue type: `Task` and `Bug` get two
+layers — an intro paragraph for a human with a one-line `DOD:`, then a technical
+spec (files, symbols, exemplar, traps, tests, base branch) an agent can start from
+with no conversation context — while `Story` gets a paragraph plus its links,
+`Research` a paragraph plus a `DOD:`, and the rest no template at all.
+Section rules are grounded in named industry practice (INVEST, acceptance
+criteria, Goals/Non-goals, bug-report anatomy). Every fact is verified in its
+primary source first; the ticket is created straight away and the full text is
+shown afterwards for correction.
 
 Skills: `jira-ticket-creator`.
 

@@ -1,7 +1,7 @@
 {
   "name": "jira-ticket-creator",
-  "version": "0.0.1",
-  "description": "Create a Jira ticket with the team's defaults (type, Inbox status, component, type/project labels, Fibonacci story points, epic in Parent, story in \"split from\", sprint on request) and a Russian description written in two layers: a human intro and a technical spec an agent can start from. Tuned for the PX project; requires the Atlassian MCP server.",
+  "version": "0.0.2",
+  "description": "Create a Jira ticket with the team's defaults (type, Inbox status, component, one type label plus a label per affected project, story points on the team's scale for Task/Bug, epic in Parent, story linked as \"split to\", sprint on request) and a Russian description shaped by the issue type: a Task says what and where and leaves how to the implementer, a Bug follows the standard fixed section set, Story and Research get short forms. Creates the ticket straight away and makes no lookup calls. Tuned for the PX project; requires the Atlassian MCP server.",
   "author": {
     "name": "dp92987"
   }
