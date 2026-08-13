@@ -75,8 +75,9 @@ the skill says so rather than claiming they landed.
 Lookups are otherwise deliberately absent: issue-type, field and link-type ids
 live in the skill's reference file, and a wrong key is rejected by the write call
 itself. Two reads survive, both rare: turning a sprint name into its id (give the
-id and even that disappears), and reading a ticket you asked to amend —
-`description` is overwritten whole, so editing without reading would erase it.
+id and even that disappears), and reading a ticket you asked to amend when it is
+not one this session created — `description` is overwritten whole, so editing
+someone else's text without reading it first would erase the rest.
 
 A defect can also be filed without an investigation: summary, expected vs actual,
 `DOD:` and where you saw it, with the reproduce/environment/evidence sections kept
