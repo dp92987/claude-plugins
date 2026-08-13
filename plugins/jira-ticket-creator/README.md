@@ -14,6 +14,12 @@ priority and dates are left alone — the ticket is created in `Inbox` and stays
 there. `Parent` and the story split are the only links it creates on its own;
 `Blocks`, `Relates` and the rest need to be asked for.
 
+Ticket keys never appear in the description text. A relation is a Jira link
+field: it shows on the board, it drives filters and dependencies, and it stays
+correct when someone changes it — a line of prose does none of that. A relation
+the skill spots but was not asked for is offered in the report instead of being
+written into the body.
+
 A `Task` states **what** must be done and **where** — how to do it is the
 implementer's call. Specifics enter the ticket only when the user supplied them,
 and in the form they were given: a requirement stays a requirement, an example

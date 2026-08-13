@@ -121,9 +121,19 @@ searchJiraIssuesUsingJql:
 «Story split to Task». Проверено на существующей связи PX-5505 → PX-4797.
 Обратный порядок создаёт связь, которая читается наоборот.
 
-Остальные типы связей (`Blocks` — «is blocked by» / «blocks», `Relates`,
-`Problem/Incident` — «is caused by» / «causes», `Duplicate`) ставятся только по
-явной просьбе пользователя. Сам их не добавляй.
+Остальные типы связей ставятся только по явной просьбе пользователя. Сам их не
+добавляй, но и не подменяй строкой в описании: ключей тикетов в тексте не бывает.
+
+| Тип | id | inward | outward |
+| --- | --- | --- | --- |
+| `Blocks` | 10000 | is blocked by | blocks |
+| `Relates` | 10003 | relates to | relates to |
+| `Problem/Incident` | 10300 | is caused by | causes |
+| `Duplicate` | 10002 | is duplicated by | duplicates |
+
+Список снят с `getIssueLinkTypes` 13.08.2026. Направление у `Blocks` то же, что у
+split: «A is blocked by B» — `inwardIssue` B, `outwardIssue` A. То есть
+`inwardIssue` — всегда тот тикет, от которого связь исходит по смыслу подписи.
 
 ## Проверка результата
 
