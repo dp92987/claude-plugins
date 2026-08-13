@@ -21,7 +21,7 @@
       "name": "jira-ticket-creator",
       "source": "./plugins/jira-ticket-creator",
       "description": "Create a Jira ticket with team defaults and a description shaped by the issue type: free-form Task, fixed-section Bug, short Story and Research",
-      "version": "0.0.2"
+      "version": "0.0.3"
     },
     {
       "name": "session-report-for-jira",

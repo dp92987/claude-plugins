@@ -53,6 +53,7 @@ was never made stays open too — that is not the same as a gap.
 Trigger phrases like:
 
 - "создай тикет на это"
+- "создай задачку на новый топик", "заведи таску", "накинь тикет на это"
 - "заведи задачу в PX и закинь в текущий спринт"
 - "оформи это багой, эпик PX-3480"
 - "create a jira ticket for this fix"
@@ -60,11 +61,12 @@ Trigger phrases like:
 The skill gathers facts from the code and the session, picks the fields, writes
 the description and creates the ticket straight away — asking first only when an
 answer is missing that would make the ticket wrong rather than merely incomplete
-(no future sprint on the board, an ambiguous assignee name). Missing detail
-becomes an "Открытый вопрос" section inside the ticket instead of a round of chat.
-After creating it adds the epic parent, the "split from" link and the sprint, then
-reports the ticket link, the fields that actually landed, the estimate with its
-one-line rationale, and the full description text for you to correct.
+(no object of work or no verifiable outcome, no future sprint on the board, an
+ambiguous assignee name). Missing detail becomes an "Открытый вопрос" section
+inside the ticket instead of a round of chat. After creating it adds the epic
+parent, the story's "split to" link and the sprint, then reports the ticket link,
+the fields that actually landed, the estimate with its one-line rationale, and the
+full description text for you to correct.
 
 Lookups are deliberately absent: issue-type, field and link-type ids live in the
 skill's reference file, a wrong key is rejected by the write call itself, and the
@@ -77,9 +79,38 @@ the spec.
 
 Skills: `jira-ticket-creator`.
 
-## Adapting it to another project
+## Where the section rules come from
 
-The PX-specific values — cloud id, issue-type ids, custom-field ids, components,
-label vocabulary, status chain, sprint board — live in
-`skills/jira-ticket-creator/references/fields-and-transitions.md`. Point that file at
-your own project and the workflow carries over unchanged.
+Nothing in the format is invented for its own sake. Each part traces to a practice
+that is standard in the industry:
+
+| Practice | What it gives the ticket |
+| --- | --- |
+| **INVEST** (Bill Wake) | one ticket, one independently shippable outcome — and the rule to split what is bigger |
+| **Acceptance criteria / Definition of Done** (Scrum) | the `DOD:` line: done is observable from outside, not "done by feel" |
+| **Given / When / Then** (BDD, Gherkin) | the shape for criteria that have preconditions |
+| **Goals / Non-goals** (engineering design docs) | the explicit "вне скоупа" that stops scope creep |
+| **Anatomy of a bug report** (Mozilla, Google bug-writing guides) | the fixed section set for a defect |
+| **Data over adjectives** | "7% of orders over 30 days" instead of "often" |
+| **Single source of truth** | the ticket reads without chasing links |
+| **Small batch size** (continuous delivery) | one ticket, one deployment; ordering spelled out when it matters |
+
+The two sections that are a local specialisation rather than a template import —
+"Почему это не вернёт `<риск>`" and "Почему `<причина остаётся>`" — narrow the
+design-doc "Risks and mitigations" list down to the single risk the reviewer will
+actually raise.
+
+## Scope
+
+This is a PX-only skill. Issue-type ids, custom-field ids, the component list, the
+label vocabulary, the status chain, the sprint board, the story-point scale and the
+cloud id are all recorded for project `PX` on `aviasales.atlassian.net`, and they
+sit in both `SKILL.md` and
+`skills/jira-ticket-creator/references/fields-and-transitions.md`.
+
+For another project on the same site the skill deliberately degrades: it creates a
+minimal ticket (project, type, summary, description) and tells you which fields it
+left unset, rather than applying the PX profile to a project that does not share
+it. For another Jira site it asks for the cloud id instead of guessing.
+
+Retargeting it at your own project therefore means editing both files — not one.
