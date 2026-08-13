@@ -20,10 +20,9 @@ a copied value silently diverges from its source. What never gets dropped is the
 localisation (service, file, symbol), the traps, and, for a defect, the mechanism:
 those are facts about the system rather than decisions about the work.
 
-The description is the point, and its shape follows the issue type. Every type is
-written in Russian, opens with an unheaded paragraph for a human, carries a
-one-line `DOD:`, names the branch to base the work off, and ends with the
-attribution footer. Past that:
+The description is the point, and its shape follows the issue type. Two things hold
+for every type: the body is written in Russian, and it ends with the attribution
+footer naming the tool and the model. Past that:
 
 - **`Task`** — free section set: sections exist when there is something true to put
   in them. Each step names the outcome, the localisation and the traps; "what it
@@ -65,13 +64,22 @@ answer is missing that would make the ticket wrong rather than merely incomplete
 ambiguous assignee name). Missing detail becomes an "Открытый вопрос" section
 inside the ticket instead of a round of chat. After creating it adds the epic
 parent, the story's "split to" link and the sprint, then reports the ticket link,
-the fields that actually landed, the estimate with its one-line rationale, and the
-full description text for you to correct.
+the fields, the estimate with its one-line rationale, and the full description text
+for you to correct. The report separates what the create response confirms from
+what was merely sent — `parent`, sprint and story points are not echoed back, and
+the skill says so rather than claiming they landed.
 
-Lookups are deliberately absent: issue-type, field and link-type ids live in the
-skill's reference file, a wrong key is rejected by the write call itself, and the
-create response already carries the resulting fields. The one unavoidable read is
-the active sprint id, and only when a sprint was requested.
+Lookups are otherwise deliberately absent: issue-type, field, transition and
+link-type ids live in the skill's reference file, and a wrong key is rejected by
+the write call itself. Exactly three reads survive, each for something that cannot
+be written down: the active sprint id, the accountId of a named assignee, and the
+current text of a ticket you asked to amend — `description` is overwritten whole,
+so editing without reading would erase it.
+
+A defect can also be filed without an investigation: summary, expected vs actual,
+`DOD:` and where you saw it, with the reproduce/environment/evidence sections kept
+in place and marked "не выяснено" rather than dropped — a missing section reads as
+"not applicable", an explicit unknown reads as work to do.
 
 Ticket descriptions end with `🤖 Generated with <tool> (<model>)` — e.g.
 `🤖 Generated with Claude Code (Opus 5)` — so a reader can see which model wrote
