@@ -76,7 +76,10 @@ used — that's part of an honest session record.
 Show the composed markdown and get an explicit go-ahead. This comment posts under
 the **user's** Jira identity and is visible to the team, so confirm first unless
 they've told you to just post it. Every comment ends with the trailer
-`🤖 Generated with Claude Code`.
+`🤖 Generated with <tool> (<model>)` — the harness you run in plus the model name
+from your own context, without the context-window suffix, e.g.
+`🤖 Generated with Claude Code (Opus 5)`. The reader should see which model wrote
+the report, not only that an agent did.
 
 ### 6. Post via the Atlassian MCP
 The Atlassian tools are deferred — load them first:
@@ -127,7 +130,7 @@ report and moving the ticket are separate actions.
 - Review: <outcomes — Copilot/Claude bot/Codex findings, or "clean">
 - Deploy: <one line + pointer to the PR's Deploy section, or "none">
 
-🤖 Generated with Claude Code
+🤖 Generated with Claude Code (Opus 5)
 ```
 
 Keep the top-line facts as bullets and the token accounting as the table — the
