@@ -1,0 +1,8 @@
+{
+  "name": "jira-ticket-creator",
+  "version": "0.0.1",
+  "description": "Create a Jira ticket with the team's defaults (type, Inbox status, component, type/project labels, Fibonacci story points, epic in Parent, story in \"split from\", sprint on request) and a Russian description written in two layers: a human intro and a technical spec an agent can start from. Tuned for the PX project; requires the Atlassian MCP server.",
+  "author": {
+    "name": "dp92987"
+  }
+}

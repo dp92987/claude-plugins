@@ -18,6 +18,12 @@
       "version": "0.2.0"
     },
     {
+      "name": "jira-ticket-creator",
+      "source": "./plugins/jira-ticket-creator",
+      "description": "Create a Jira ticket with team defaults and a two-layer description: a human intro plus a technical spec an agent can start from",
+      "version": "0.0.1"
+    },
+    {
       "name": "session-report-for-jira",
       "source": "./plugins/session-report-for-jira",
       "description": "Post a session report (accomplishments + honest /usage cost and token metadata) as a Jira comment",
