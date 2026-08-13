@@ -3,13 +3,16 @@
 Create a Jira ticket from what you just discussed, with the team's defaults
 applied and a description that stands on its own.
 
-Fields come from a default profile (project `PX`, type `Task`/`Bug`, status
-`Inbox`, component `Backend`, one type label plus a label per affected project,
-story points on the team's published scale and only for `Task`/`Bug`, epic in
-`Parent`, story linked to its children as "split to", sprint only on request, no
-assignee). Anything the user names explicitly wins over the default. `Parent` and
-the story split are the only links it creates on its own — `Blocks`, `Relates` and
-the rest need to be asked for.
+It fills exactly the fields you would otherwise fill by hand: summary,
+description, component (`Backend` by default), one type label plus a label per
+affected project, story points on the team's published scale (`Task` and `Bug`
+only), the epic in `Parent`, the story's "split to" link, and a sprint when you
+give its id or its exact name. Anything you name explicitly wins over the default.
+
+It deliberately does not manage the rest of the ticket: status, assignee,
+priority and dates are left alone — the ticket is created in `Inbox` and stays
+there. `Parent` and the story split are the only links it creates on its own;
+`Blocks`, `Relates` and the rest need to be asked for.
 
 A `Task` states **what** must be done and **where** — how to do it is the
 implementer's call. Specifics enter the ticket only when the user supplied them,
@@ -53,15 +56,15 @@ Trigger phrases like:
 
 - "создай тикет на это"
 - "создай задачку на новый топик", "заведи таску", "накинь тикет на это"
-- "заведи задачу в PX и закинь в текущий спринт"
+- "заведи задачу в PX и положи в спринт 29280"
 - "оформи это багой, эпик PX-3480"
 - "create a jira ticket for this fix"
 
 The skill gathers facts from the code and the session, picks the fields, writes
 the description and creates the ticket straight away — asking first only when an
 answer is missing that would make the ticket wrong rather than merely incomplete
-(no object of work or no verifiable outcome, no future sprint on the board, an
-ambiguous assignee name). Missing detail becomes an "Открытый вопрос" section
+(no object of work, no verifiable outcome, or a sprint named only as "the current
+one"). Missing detail becomes an "Открытый вопрос" section
 inside the ticket instead of a round of chat. After creating it adds the epic
 parent, the story's "split to" link and the sprint, then reports the ticket link,
 the fields, the estimate with its one-line rationale, and the full description text
@@ -69,12 +72,11 @@ for you to correct. The report separates what the create response confirms from
 what was merely sent — `parent`, sprint and story points are not echoed back, and
 the skill says so rather than claiming they landed.
 
-Lookups are otherwise deliberately absent: issue-type, field, transition and
-link-type ids live in the skill's reference file, and a wrong key is rejected by
-the write call itself. Exactly three reads survive, each for something that cannot
-be written down: the active sprint id, the accountId of a named assignee, and the
-current text of a ticket you asked to amend — `description` is overwritten whole,
-so editing without reading would erase it.
+Lookups are otherwise deliberately absent: issue-type, field and link-type ids
+live in the skill's reference file, and a wrong key is rejected by the write call
+itself. Two reads survive, both rare: turning a sprint name into its id (give the
+id and even that disappears), and reading a ticket you asked to amend —
+`description` is overwritten whole, so editing without reading would erase it.
 
 A defect can also be filed without an investigation: summary, expected vs actual,
 `DOD:` and where you saw it, with the reproduce/environment/evidence sections kept
@@ -111,10 +113,9 @@ actually raise.
 ## Scope
 
 This is a PX-only skill. Issue-type ids, custom-field ids, the component list, the
-label vocabulary, the status chain, the sprint board, the story-point scale and the
-cloud id are all recorded for project `PX` on `aviasales.atlassian.net`, and they
-sit in both `SKILL.md` and
-`skills/jira-ticket-creator/references/fields-and-transitions.md`.
+label vocabulary, the sprint board, the story-point scale and the cloud id are all
+recorded for project `PX` on `aviasales.atlassian.net`, and they sit in both
+`SKILL.md` and `skills/jira-ticket-creator/references/fields.md`.
 
 For another project on the same site the skill deliberately degrades: it creates a
 minimal ticket (project, type, summary, description) and tells you which fields it

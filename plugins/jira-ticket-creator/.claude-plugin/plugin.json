@@ -1,7 +1,7 @@
 {
   "name": "jira-ticket-creator",
-  "version": "0.0.4",
-  "description": "Create a Jira ticket in project PX with the team's field defaults and a Russian description shaped by the issue type: a Task says what and where and leaves how to the implementer, a Bug follows the standard fixed section set and can also be filed as an un-investigated observation, Story and Research get short forms. Creates the ticket straight away, keeps reads down to three unavoidable ones, and can amend an existing ticket's description. Requires the Atlassian MCP server.",
+  "version": "0.0.5",
+  "description": "Create a Jira ticket in project PX, filling exactly the fields a human would fill by hand — summary, description, component, type and project labels, story points on the team's scale, epic in Parent, the story's split-to link, and a sprint given by id or exact name — and leaving status, assignee and priority alone. The description is shaped by the issue type: a Task says what and where and leaves how to the implementer, a Bug follows the standard fixed section set and can be filed as an un-investigated observation, Story and Research get short forms. Requires the Atlassian MCP server.",
   "author": {
     "name": "dp92987"
   }
