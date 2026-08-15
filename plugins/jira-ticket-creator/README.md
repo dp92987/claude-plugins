@@ -78,12 +78,17 @@ for you to correct. The report separates what the create response confirms from
 what was merely sent — `parent`, sprint and story points are not echoed back, and
 the skill says so rather than claiming they landed.
 
+Naming a story does two things: it creates the "split to" link, and it puts the
+new ticket in the story's own epic — otherwise the task drops out of the epic on
+the board. The epic is read from the story unless you named one yourself.
+
 Lookups are otherwise deliberately absent: issue-type, field and link-type ids
 live in the skill's reference file, and a wrong key is rejected by the write call
-itself. Two reads survive, both rare: turning a sprint name into its id (give the
-id and even that disappears), and reading a ticket you asked to amend when it is
-not one this session created — `description` is overwritten whole, so editing
-someone else's text without reading it first would erase the rest.
+itself. Three reads survive, each on its own condition: the story's epic (name the
+epic and it disappears), turning a sprint name into its id (give the id and that
+one goes too), and reading a ticket you asked to amend when it is not one this
+session created — `description` is overwritten whole, so editing someone else's
+text without reading it first would erase the rest.
 
 A defect can also be filed without an investigation: summary, expected vs actual,
 `DOD:` and where you saw it, with the reproduce/environment/evidence sections kept
