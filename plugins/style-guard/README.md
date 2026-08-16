@@ -24,7 +24,13 @@ Self-contained: everything the layer knows lives in `~/.claude/style-guard/`.
   exists, so "off" is distinguishable from "broken").
 - **Stop hook** (`hooks/go-style-check-stop.sh`): the finish gate, and the
   only place structural findings actually block — PostToolUse is advisory by
-  design, so ast-grep is asked again here. Then the type-aware tier:
+  design, so ast-grep is asked again here. It gates on the Go files this
+  session edited, read out of the transcript rather than off working-tree
+  state: a selection of `git diff HEAD` plus untracked swept in files the
+  session never touched, and on a repo whose index a rebase had mangled it
+  left hundreds of untracked `.go` blocking every turn. The cost is that a
+  subagent's edits, which live in its own transcript, reach PostToolUse only.
+  Then the type-aware tier:
   golangci-lint with the personal `~/.claude/style-guard/golangci.yml` over
   the changed packages (`--new-from-rev HEAD`), once per turn rather than per
   edit, since golangci is too slow for the edit loop. Armed only when that

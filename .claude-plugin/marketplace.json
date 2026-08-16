@@ -33,7 +33,7 @@
       "name": "style-guard",
       "source": "./plugins/style-guard",
       "description": "Personal Go style enforcement in three tiers: ast-grep on every edit, golangci-lint over the diff as a finish gate, and taste rules checked by a fan-out review pass gated on PR creation",
-      "version": "0.5.0"
+      "version": "0.5.1"
     }
   ]
 }

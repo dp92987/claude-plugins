@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Stop-hook: golangci-lint по диффу изменённых Go-файлов с личным конфигом.
+# Stop-hook: golangci-lint по диффу Go-файлов, которые агент правил в этой
+# сессии (список берётся из транскрипта), с личным конфигом.
 # Type-aware тир слишком медленный для запуска на каждый Edit, поэтому гейт
 # один раз на завершение хода; --new-from-rev HEAD режет отчёт до изменённых
 # строк, чтобы старые нарушения файла не блокировали ход.
@@ -28,7 +29,28 @@ TOP="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 cd "$TOP" || exit 0
 git rev-parse HEAD >/dev/null 2>&1 || exit 0
 
-CHANGED="$( { git diff --name-only HEAD -- '*.go'; git ls-files --others --exclude-standard -- '*.go'; } | sort -u )"
+TRANSCRIPT="$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty')"
+[ -f "$TRANSCRIPT" ] || skip "no transcript: ${TRANSCRIPT:-<empty>}"
+
+# гейт отвечает только за то, что агент правил сам. Выборка по состоянию дерева
+# (diff HEAD + untracked) тянула сюда чужие файлы: на репозитории, где ребейз
+# оставил сотни untracked .go, ход переставал завершаться из-за нарушений,
+# которых сессия не касалась. Правки субагента сюда не попадают — у него свой
+# транскрипт; их ловит PostToolUse в момент правки.
+EDITED="$(jq -r 'select(.type == "assistant") | .message.content[]?
+                 | select(.type == "tool_use")
+                 | select(.name == "Edit" or .name == "Write"
+                          or .name == "MultiEdit" or .name == "NotebookEdit")
+                 | .input.file_path // empty' "$TRANSCRIPT" 2>>"$DATA_DIR/scan.log" | sort -u)"
+
+# пути в транскрипте абсолютные; наружу отдаём относительные от корня репозитория,
+# как ждут scan-added-lines.sh и golangci
+CHANGED="$(printf '%s\n' "$EDITED" | while IFS= read -r f; do
+  case "$f" in "$TOP"/*.go) ;; *) continue ;; esac
+  # файл мог быть удалён после правки
+  [ -f "$f" ] || continue
+  printf '%s\n' "${f#"$TOP"/}"
+done)"
 [ -n "$CHANGED" ] || exit 0
 
 # ast-grep-тир: PostToolUse только совещательный (tool уже отработал), поэтому
