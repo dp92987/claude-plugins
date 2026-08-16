@@ -12,13 +12,20 @@ give its id or its exact name. Anything you name explicitly wins over the defaul
 It deliberately does not manage the rest of the ticket: status, assignee,
 priority and dates are left alone — the ticket is created in `Inbox` and stays
 there. `Parent` and the story split are the only links it creates on its own;
-`Blocks`, `Relates` and the rest need to be asked for.
+`Blocks`, `Relates` and the rest need to be asked for — with one exception: in a
+feature batch (a story split into tasks created in one go) every dependency
+between the tasks becomes a `Blocks` link, because the order was agreed together
+with the task list.
 
 Ticket keys never appear in the description text. A relation is a Jira link
 field: it shows on the board, it drives filters and dependencies, and it stays
 correct when someone changes it — a line of prose does none of that. A relation
 the skill spots but was not asked for is offered in the report instead of being
-written into the body.
+written into the body. The one exception is the execution order of a feature
+batch: ordering as a whole has no Jira field, so the story gets a numbered
+"Порядок выполнения" section once all the keys exist, and each task states its
+step right after the `DOD:` line — on top of the `Blocks` links, never instead
+of them.
 
 A `Task` states **what** must be done and **where** — how to do it is the
 implementer's call. Specifics enter the ticket only when the user supplied them,
@@ -81,6 +88,12 @@ the skill says so rather than claiming they landed.
 Naming a story does two things: it creates the "split to" link, and it puts the
 new ticket in the story's own epic — otherwise the task drops out of the epic on
 the board. The epic is read from the story unless you named one yourself.
+
+Splitting a feature works as a batch: the task list and its execution order are
+agreed first, then the tasks are created in that order — so each description can
+name its predecessors by key without a second pass. Independent tasks share a
+step and get no link between them; when no ordering exists at all, none is
+invented.
 
 Lookups are otherwise deliberately absent: issue-type, field and link-type ids
 live in the skill's reference file, and a wrong key is rejected by the write call
