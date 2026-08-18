@@ -39,7 +39,7 @@
       "name": "worktree-janitor",
       "source": "./plugins/worktree-janitor",
       "description": "Inventory and clean up git worktrees: per-tree proof of whether its work can be lost — uncommitted, unpushed, or already merged including squash-merges — with deletion only on explicit request",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

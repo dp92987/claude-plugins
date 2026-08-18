@@ -5,7 +5,7 @@
 Запускается только явно:
 
 ```
-/worktree-janitor:worktrees [каталог] [--clean]
+/worktree-janitor:worktree-janitor [каталог] [--clean]
 ```
 
 Без каталога берётся текущий. Без `--clean` скилл только отчитывается.
