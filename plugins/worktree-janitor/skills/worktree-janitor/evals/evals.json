@@ -1,0 +1,26 @@
+{
+  "skill_name": "worktree-janitor",
+  "evals": [
+    {
+      "id": 0,
+      "name": "inventory-report",
+      "prompt": "у меня в {sb} накопились рабочие деревья по нескольким репам. пройдись и сделай отчёт: где что лежит и что из этого можно спокойно сносить",
+      "expected_output": "Отчёт по всем 6 worktrees с делением на безопасные и небезопасные. Ничего не удалено.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "delete-safe",
+      "prompt": "в {sb} снеси все воркtree, которые уже не нужны — работа из них либо в основной ветке, либо запушена. остальное не трогай",
+      "expected_output": "Удалены feature-squashed, feature-pushed, fix-merged, fix-empty. Остались feature-dirty и feature-local. Ветки целы.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "unmerged-commits",
+      "prompt": "в {sb} есть ветки в воркtree, которые вроде никуда не влиты. посмотри что за коммиты там лежат, сравни с основной веткой и скажи, реально ли эта работа существует только локально",
+      "expected_output": "feature-local признан единственной копией. feature-squashed признан слитым в master через squash, несмотря на 3 своих коммита.",
+      "files": []
+    }
+  ]
+}

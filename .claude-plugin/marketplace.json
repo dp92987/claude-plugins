@@ -34,6 +34,12 @@
       "source": "./plugins/style-guard",
       "description": "Personal Go style enforcement in three tiers: ast-grep on every edit, golangci-lint over the diff as a finish gate, and taste rules checked by a fan-out review pass gated on PR creation",
       "version": "0.5.1"
+    },
+    {
+      "name": "worktree-janitor",
+      "source": "./plugins/worktree-janitor",
+      "description": "Inventory and clean up git worktrees: per-tree proof of whether its work can be lost — uncommitted, unpushed, or already merged including squash-merges — with deletion only on explicit request",
+      "version": "0.1.0"
     }
   ]
 }
