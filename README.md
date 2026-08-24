@@ -33,9 +33,11 @@ Skills: `codex-implementation`, `codex-review`.
 ### [jira-ticket-creator](plugins/jira-ticket-creator/)
 
 Create a Jira ticket, filling exactly the fields you would fill by hand (project,
-type, component, one type label plus a label per affected project, story points on
-the team's published scale, epic in `Parent`, story linked as "split to", sprint by
-id or exact name), leaving status, assignee and priority alone. The description is
+type, component, labels, story points on a built-in default scale the profile can
+refine, epic in `Parent`, story linked as "split to", sprint by id or exact name),
+leaving status, assignee and priority alone. Team specifics live in per-team
+profiles under the plugin's data directory, picked by the repo's git remote and
+created by `/jira-ticket-creator:setup`. The description is
 shaped by the issue type: `Task` and `Bug` get two
 layers — an intro paragraph for a human with a one-line `DOD:`, then a technical
 spec (files, symbols, exemplar, traps, tests, base branch) an agent can start from

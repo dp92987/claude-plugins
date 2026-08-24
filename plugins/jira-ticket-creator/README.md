@@ -4,7 +4,8 @@ Create a Jira ticket from what you just discussed, with the team's defaults
 applied and a description that stands on its own.
 
 It fills exactly the fields you would otherwise fill by hand: summary,
-description, component, labels, story points on the team's published scale, the
+description, component, labels, story points (a default scale is built into the
+skill; the profile can refine or replace it), the
 epic in `Parent`, the story's "split to" link, and a sprint when you give its id
 or its exact name. Anything you name explicitly wins over the default.
 
@@ -20,7 +21,8 @@ order was agreed together with the task list.
 
 Nothing team-specific lives in the skill. The site URL, cloud id, project key,
 issue-type/field/link ids, component list, label vocabulary, title format,
-story-point scale, sprint board and ticket language all live in a **profile** —
+story-point conventions, sprint board and ticket language all live in a
+**profile** —
 a markdown file in the plugin's data directory (`${CLAUDE_PLUGIN_DATA}`,
 normally `~/.claude/plugins/data/jira-ticket-creator-<marketplace>/`):
 
