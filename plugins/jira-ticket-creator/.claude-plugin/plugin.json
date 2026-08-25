@@ -1,6 +1,6 @@
 {
   "name": "jira-ticket-creator",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Create a Jira ticket with the team's defaults applied and a description the implementer can start from without access to the chat. Project-agnostic: the site, cloud id, project key, field/type/link ids, components, label vocabulary, title format and ticket language live in a per-team profile under the plugin's data directory (a default story-point scale is built into the skill; the profile can refine or replace it), and a repo-to-profile mapping picks the profile from the current repository's git remote. The skill fills exactly the fields a human would fill by hand and leaves status, assignee and priority alone. The description is shaped by the issue type: a Task says what and where and leaves how to the implementer, a Bug follows the standard fixed section set and can be filed as an un-investigated observation, Story and Research get short forms. A feature split into a batch of tickets gets Blocks links between the tasks and an execution-order section in the story and in each task. /jira-ticket-creator:setup builds a profile for a new team. Requires the Atlassian MCP server.",
   "author": {
     "name": "dp92987"

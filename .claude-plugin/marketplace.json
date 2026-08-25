@@ -21,7 +21,7 @@
       "name": "jira-ticket-creator",
       "source": "./plugins/jira-ticket-creator",
       "description": "Create a Jira ticket: fills the fields you would fill by hand, leaves status and assignee alone, description shaped by issue type; team specifics live in a profile picked by the repo's git remote",
-      "version": "0.2.1"
+      "version": "0.2.2"
     },
     {
       "name": "session-report-for-jira",
