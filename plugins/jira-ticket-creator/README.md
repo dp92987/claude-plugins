@@ -108,7 +108,17 @@ the ticket straight away — asking first only when an answer is missing that
 would make the ticket wrong rather than merely incomplete (no object of work, no
 verifiable outcome, or a sprint named only as "the current one"). Missing detail
 becomes an "Открытый вопрос" section inside the ticket instead of a round of
-chat. After creating it adds the epic parent, the story's "split to" link and
+chat.
+
+That section is never created behind your back. When the draft has one, the skill
+lists the questions and asks whether to create the ticket as is or settle them
+first — so an open question in a created ticket always means you saw it and left
+it open on purpose. What you settle becomes a requirement, what you hand to the
+implementer becomes an explicit delegation in the plan, and the rest stays in the
+section under a line telling the implementer — human or agent — to ask before
+choosing, rather than decide silently.
+
+After creating it adds the epic parent, the story's "split to" link and
 the sprint, then reports the ticket link, the fields, the estimate with its
 one-line rationale, and the full description text for you to correct. The report
 separates what the create response confirms from what was merely sent —
