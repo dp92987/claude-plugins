@@ -55,3 +55,19 @@ Skills: `jira-ticket-creator`.
 Post a "Claude Code session report" comment on a Jira ticket: what the session accomplished (task, PRs, review outcomes, deploy notes) plus session metadata — session link, cost, API/wall duration, code changes, and per-model token usage. Numbers come only from the user's pasted `/usage` output; the skill never estimates or fabricates them. Resolves the ticket from the branch name, previews the comment before posting, and never transitions the ticket. Requires the Atlassian MCP server.
 
 Skills: `jira-session-report`.
+
+### [github-pr-creator](plugins/github-pr-creator/)
+
+Create a GitHub pull request from the current branch, filling only the title,
+the body and the base branch — labels, reviewers, draft and assignee are left
+alone. The title is conventional-commits with the Jira key from the branch
+name; the body is the clickable ticket link, a short "what was done" written
+from the diff, a "verified" line, and a mandatory rollout section: which
+services, into which production clusters (read from each service's deploy
+manifest at PR time), in what order, and which config keys and secrets must
+exist before and after — names and paths, never values. A repository PR
+template is followed strictly when present. Everything unknown is asked in one
+round before creation, so the PR never carries an open question. The only
+setting is a repo-to-Jira-site table the skill maintains itself. Requires `gh`.
+
+Skills: `github-pr-creator`.

@@ -40,6 +40,12 @@
       "source": "./plugins/worktree-janitor",
       "description": "Inventory and clean up git worktrees: per-tree proof of whether its work can be lost — uncommitted, unpushed, or already merged including squash-merges — with deletion only on explicit request",
       "version": "0.1.1"
+    },
+    {
+      "name": "github-pr-creator",
+      "source": "./plugins/github-pr-creator",
+      "description": "Create a GitHub PR from the current branch: conventional title with the Jira key, body of ticket link + what was done + verified line + a mandatory rollout section (services, production clusters read from deploy manifests, order, config keys and secret names before/after); fills only title, body and base; follows the repo's PR template strictly when present",
+      "version": "0.1.0"
     }
   ]
 }

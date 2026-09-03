@@ -1,0 +1,8 @@
+{
+  "name": "github-pr-creator",
+  "version": "0.1.0",
+  "description": "Create a GitHub pull request from the current branch: a conventional-commits title carrying the Jira key from the branch name, and a body made of the clickable ticket link, a short 'what was done', a 'verified' line and a mandatory rollout section — which services, into which production clusters (read from each service's deploy manifest in the repo, never guessed), in what order, and which config keys and secrets must exist before and after (names and paths only, never values). Fills only title, body and base branch; leaves labels, reviewers, draft and assignee alone. Follows the repository's own PR template strictly when it has one. Everything unknown is asked before creation so the PR never carries an open question. The only setting is a repo-to-Jira-site table the skill maintains itself. Requires the gh CLI.",
+  "author": {
+    "name": "dp92987"
+  }
+}
