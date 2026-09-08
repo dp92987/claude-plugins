@@ -20,7 +20,7 @@ the link, the body carries three things:
 - **Verified** — one line with what actually ran in the session and its result,
   or an explicit "not verified". An omitted line reads as "verified but not
   written down"; an explicit one reads as a fact.
-- **Rollout** (`## Выкатка`) — mandatory, three blocks in time order, each a
+- **Rollout** (`## Деплой`) — mandatory, three blocks in time order, each a
   bold label over a numbered list, an empty block spelled out as "Нет.":
   - *before rollout* — secrets (name and vault path, never a value), config
     keys, topics and queues that must exist first, hand-run migrations, PRs in
