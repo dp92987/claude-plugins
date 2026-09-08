@@ -26,10 +26,14 @@ the link, the body carries three things:
     keys, topics and queues that must exist first, hand-run migrations, PRs in
     other repositories;
   - *rollout* — one item per service in deploy order: service → its production
-    clusters, then why it sits at that position. Clusters are read from the
-    service's deploy manifest in the repository at PR time, never from memory;
-    the dev contour is omitted because nearly every service has one, and only
-    the deviations are marked ("без dev", "не деплоится");
+    clusters, then why it sits at that position. Only services that must be
+    rolled out for the change to take effect are listed; a service that merely
+    recompiles a shared package and behaves the same is not an item, and when
+    nothing needs rolling out the block says so ("Не требуется:" plus the
+    reason). Clusters are read from the service's deploy manifest in the
+    repository at PR time, never from memory; the dev contour is omitted
+    because nearly every service has one, and only the deviations are marked
+    ("без dev", "не деплоится");
   - *after rollout* — flags to enable, consumers to catch up, keys to remove.
 
 The body ends with the attribution footer `🤖 Generated with <tool> (<model>)`.
