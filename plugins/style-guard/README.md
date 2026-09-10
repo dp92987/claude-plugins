@@ -56,10 +56,13 @@ Self-contained: everything the layer knows lives in `~/.claude/style-guard/`.
   invocable by hand at any point; a per-file `.reviewed` stamp (keyed on the
   file *and* on `taste.md`, so a new rule re-opens every file) keeps repeat
   passes down to a few hashes.
-- **PR gate** (`hooks/pr-gate.sh`, PreToolUse on `Bash`): blocks
-  `gh pr create` while any changed Go file lacks a current stamp. The skill's
-  own trigger is a description, i.e. probabilistic; this makes the one moment
-  that matters deterministic. Inert until `taste.md` exists.
+- **PR gate** (`hooks/pr-gate.sh`, PreToolUse on `Bash`): blocks every
+  shell route to a new PR — `gh pr create`, `gh api … /pulls` with a POST or
+  field flags, a GraphQL `createPullRequest` mutation, `curl` to
+  `api.github.com/…/pulls` — while any changed Go file lacks a current stamp.
+  Reads and edits of existing PRs (`pulls/<n>`, comments, reviews) pass. The
+  skill's own trigger is a description, i.e. probabilistic; this makes the
+  one moment that matters deterministic. Inert until `taste.md` exists.
 
 ## Data
 

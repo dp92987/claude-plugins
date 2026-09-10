@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# PreToolUse-hook (Bash): не даёт открыть PR, пока Go-изменения ветки не прошли
+# PreToolUse-hook (Bash): не даёт открыть PR (gh pr create, gh api …/pulls, GraphQL
+# createPullRequest, curl к api.github.com), пока Go-изменения ветки не прошли
 # taste-ревью. Триггер самого ревью — описание скилла, то есть вероятностный;
 # это его детерминированный дублёр, и он опирается на тот же штамп .reviewed.
 # exit 2 блокирует вызов инструмента и показывает stderr агенту.
@@ -16,11 +17,25 @@ command -v jq >/dev/null 2>&1 || exit 0
 command -v sha256sum >/dev/null 2>&1 || exit 0
 
 INPUT="$(cat)"
-CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty')"
-case "$CMD" in
-  *"gh pr create"*) ;;
-  *) exit 0 ;;
-esac
+# многострочная команда с \-переносами схлопывается в одну строку, иначе grep
+# не увидит флаг и путь, разнесённые по разным строкам
+CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' | tr '\n' ' ')"
+
+# все способы открыть PR из shell, а не только gh pr create: gh api по умолчанию
+# делает POST при любом -f/-F/--input, поэтому явного метода может и не быть
+creates_pr() {
+  printf '%s' "$1" | grep -Eq '(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+create([[:space:]]|$)' && return 0
+  printf '%s' "$1" | grep -Eq '(^|[;&|[:space:]])gh[[:space:]]+api([[:space:]]|$)' \
+    && printf '%s' "$1" | grep -Eq '/pulls(["'"'"'[:space:]]|$)' \
+    && printf '%s' "$1" | grep -Eq -- '(^|[[:space:]])(-X|--method)[[:space:]=]+[Pp][Oo][Ss][Tt]|(^|[[:space:]])(-f|-F|--field|--raw-field|--input)([[:space:]=]|$)' \
+    && return 0
+  printf '%s' "$1" | grep -Eq 'createPullRequest' && return 0
+  printf '%s' "$1" | grep -Eq 'api\.github\.com/repos/[^[:space:]"'"'"']+/pulls(["'"'"'[:space:]]|$)' \
+    && printf '%s' "$1" | grep -Eq -- '(^|[[:space:]])(-X|--request)[[:space:]=]+[Pp][Oo][Ss][Tt]|(^|[[:space:]])(-d|--data|--data-raw|--data-binary|--json)([[:space:]=]|$)' \
+    && return 0
+  return 1
+}
+creates_pr "$CMD" || exit 0
 case "$CMD" in *--help*) exit 0 ;; esac
 
 CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // empty')"
