@@ -46,6 +46,12 @@
       "source": "./plugins/github-pr-creator",
       "description": "Create a GitHub PR from the current branch: conventional title with the Jira key, body of ticket link + what was done + verified line + a mandatory rollout section (only services that must actually be rolled out, production clusters read from deploy manifests, order, config keys and secret names before/after); fills only title, body and base; follows the repo's PR template strictly when present",
       "version": "0.1.2"
+    },
+    {
+      "name": "ticket-to-pr",
+      "source": "./plugins/ticket-to-pr",
+      "description": "Take a Jira ticket to a pull request in one manual command: open questions asked in one round first, implement in the current session, adversarial pre-review by a Claude subagent and/or Codex with confirmed findings fixed, commit, push, PR, and summoning the team's PR reviewers (Copilot, @claude); full runs every profile step without questions, partial shows a checklist; per-team profiles picked by git remote",
+      "version": "0.1.0"
     }
   ]
 }

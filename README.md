@@ -71,3 +71,20 @@ round before creation, so the PR never carries an open question. The only
 setting is a repo-to-Jira-site table the skill maintains itself. Requires `gh`.
 
 Skills: `github-pr-creator`.
+
+### [ticket-to-pr](plugins/ticket-to-pr/)
+
+Take a Jira ticket to a pull request in one manual command:
+`/ticket-to-pr:full <ticket>` runs every step the repo's profile enables with
+no process questions, `/ticket-to-pr:partial <ticket>` shows a checklist first.
+The pipeline is implement (in the current session) → adversarial pre-review by
+a Claude subagent and/or Codex, with confirmed findings fixed and one re-check
+→ commit → push → PR (via a PR-creating skill named in the profile) → summon
+the team's PR reviewers (Copilot through the reviewers API, Claude through an
+`@claude` comment). Open questions from the ticket and the code are asked in one
+round before work starts; the answers go into the PR body. Team specifics live in per-team profiles
+under the plugin's data directory, picked by git remote and created by
+`/ticket-to-pr:setup`; an unmapped repo runs setup first. Requires `gh` and the
+Atlassian MCP server; `codex` optional.
+
+Skills: `ticket-to-pr`.
