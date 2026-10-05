@@ -47,9 +47,9 @@ silently replaced by self-review.
 ## PR reviews
 
 A summoned reviewer is a promise to handle its review. The skill waits for
-each reply where the profile says it lands, up to the profile's deadline: with
-an event-driven PR watcher when the host has one (T3 Code's
-`watch_pull_request`), otherwise a `Monitor` loop over the PR's reviews. Each
+each reply where the profile says it lands, up to the profile's deadline, with
+a `Monitor` loop over the PR's reviews — no host-specific PR watchers, so it
+behaves the same in any Claude Code environment. Each
 comment is verified against the code like a pre-review finding; confirmed ones
 are fixed in a new commit pushed on top (never a force-push — reviewers have
 already seen the history), and every thread gets a reply naming the outcome.

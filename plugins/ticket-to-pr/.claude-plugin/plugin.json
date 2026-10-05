@@ -1,6 +1,6 @@
 {
   "name": "ticket-to-pr",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Take a Jira ticket to a pull request in one manual command: open questions from the ticket and the code asked in one round before work starts, implementation in the current session, pre-review the diff with an independent Claude subagent and/or Codex (confirmed findings fixed, one re-check), commit, push, open the PR, summon the team's PR reviewers (GitHub Copilot, the @claude action), then wait for their reviews and handle every comment (fix in a new commit, reply in each thread), moving the Jira ticket to the profile's statuses before work and after the PR. /ticket-to-pr:full runs every step the profile enables without questions; /ticket-to-pr:partial shows a checklist to pick the steps. Everything team-specific — Jira site, branch naming, verify commands, pre-review model, commit format, how the PR is created, how each reviewer is summoned, the ticket's status path — lives in a per-team profile under the plugin's data directory, created by /ticket-to-pr:setup and picked by the repo's git remote; an unmapped repo runs setup first. Requires gh and the Atlassian MCP server; codex is optional.",
   "author": {
     "name": "dp92987"

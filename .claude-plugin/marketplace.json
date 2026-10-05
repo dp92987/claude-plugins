@@ -51,7 +51,7 @@
       "name": "ticket-to-pr",
       "source": "./plugins/ticket-to-pr",
       "description": "Take a Jira ticket to a pull request in one manual command: open questions asked in one round first, implement in the current session, adversarial pre-review by a Claude subagent and/or Codex with confirmed findings fixed, commit, push, PR, summoning the team's PR reviewers (Copilot, @claude) and handling every comment of their reviews, and moving the Jira ticket to In Progress before work and to review after the PR; full runs every profile step without questions, partial shows a checklist; per-team profiles picked by git remote",
-      "version": "0.3.0"
+      "version": "0.3.1"
     }
   ]
 }
