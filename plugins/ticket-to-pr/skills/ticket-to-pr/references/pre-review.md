@@ -62,6 +62,13 @@ codex --version && codex login status
 Запуск в фоне, итог — в файл; лог целиком, без `tail`: `session id` печатается
 в начале и нужен для уточняющих вопросов Codex.
 
+Фоновой командой (`run_in_background`) запускается сама команда `codex` ниже,
+без `&`, `nohup` и обёрток. Харнесс уведомляет о завершении той команды,
+которую запустил: обёртка с `codex … &` внутри выходит сразу, Codex остаётся
+сиротой, и о конце его работы никто не узнает. Ждать вручную через
+`pgrep -f '<часть команды>'` тоже нельзя: шаблон находит в списке процессов и
+сам цикл ожидания, и оболочку-обёртку, поэтому цикл не завершается никогда.
+
 ```bash
 codex exec review -o <scratchpad>/codex-review.md - > <scratchpad>/codex-review-run.log 2>&1 <<'EOF'
 Review the uncommitted and branch changes against origin/<база> (staged,
