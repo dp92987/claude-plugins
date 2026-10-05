@@ -81,7 +81,8 @@ The pipeline is implement (in the current session) → adversarial pre-review by
 a Claude subagent and/or Codex, with confirmed findings fixed and one re-check
 → commit → push → PR (via a PR-creating skill named in the profile) → summon
 the team's PR reviewers (Copilot through the reviewers API, Claude through an
-`@claude` comment), with the Jira ticket moved to the profile's statuses before
+`@claude` comment) → wait for their reviews and handle every comment, with the
+Jira ticket moved to the profile's statuses before
 work and after the PR. Open questions from the ticket and the code are asked
 in one round before work starts; the answers go into the PR body. Team specifics live in per-team profiles
 under the plugin's data directory, picked by git remote and created by

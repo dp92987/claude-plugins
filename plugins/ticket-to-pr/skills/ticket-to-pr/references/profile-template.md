@@ -68,13 +68,19 @@ partial и не выполняется в full. Поэтому необязат�
 
 ### `## Ревьюеры`
 
-Таблица «имя → команда»; в команде `<pr>` заменяется номером созданного PR,
-`<owner>/<repo>` — репозиторием. Известные способы:
+Таблица «имя → команда → ответ»; в команде `<pr>` заменяется номером
+созданного PR, `<owner>/<repo>` — репозиторием. Известные способы:
 
-| Ревьюер | Команда |
-| --- | --- |
-| GitHub Copilot | `gh api -X POST repos/<owner>/<repo>/pulls/<pr>/requested_reviewers -f 'reviewers[]=copilot-pull-request-reviewer[bot]'` |
-| Claude (GitHub Action по `@claude`) | `gh pr comment <pr> --body '@claude'` |
+| Ревьюер | Команда | Ответ |
+| --- | --- | --- |
+| GitHub Copilot | `gh api -X POST repos/<owner>/<repo>/pulls/<pr>/requested_reviewers -f 'reviewers[]=copilot-pull-request-reviewer[bot]'` | ревью PR от `copilot-pull-request-reviewer[bot]` в `pulls/<pr>/reviews`, срок 30 минут |
+| Claude (GitHub Action по `@claude`) | `gh pr comment <pr> --body '@claude'` | ревью PR от `claude[bot]` в `pulls/<pr>/reviews`, срок 30 минут |
+
+«Ответ» — где появляется ревью этого ревьюера (ревью или комментарий, логин
+бота) и сколько его ждать: по нему шаг «Дождаться и разобрать ревью» понимает,
+что ответ пришёл, и когда перестать ждать. Без «Ответа» ревьюер призывается,
+но не ждётся. Срок снимается с живого PR: сколько бот отвечал на последних
+призывах, с запасом.
 
 Текст комментария для Claude — тот, на который настроен workflow репозитория
 (`grep -r '@claude' .github/workflows`); у команды может быть принят свой.
