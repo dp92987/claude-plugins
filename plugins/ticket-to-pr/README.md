@@ -16,10 +16,25 @@ fixes land in the same commit and history shows the result, not the process.
 | --- | --- |
 | `/ticket-to-pr:full <ticket>` | Every step the profile enables, no process questions |
 | `/ticket-to-pr:partial <ticket>` | Checklist of the profile's steps, then no questions |
+| `/ticket-to-pr:done <ticket or PR>` | Merge the ticket's PR if it is green, then move the ticket to its final status |
 | `/ticket-to-pr:setup [name]` | Create or update a profile and map the current repo to it |
 
 `<ticket>` is a `https://<site>.atlassian.net/browse/KEY-123` link or a bare
 key. An unmapped repository runs setup first, then continues.
+
+## Done
+
+`/ticket-to-pr:done` is separate from the pipeline: it is run when the PR has
+been reviewed (and rolled out, if the team deploys branches before merging).
+Invoking it is the permission to merge, so it asks nothing — but it merges
+only a green PR: open, not a draft, no conflicts, `mergeStateStatus: CLEAN`,
+every check finished as success/skipped/neutral, no changes requested, no
+unresolved review threads. Anything else stops with the failed conditions
+listed; `--admin` and `--auto` are never used. The merge uses the profile's
+method (`gh pr merge --squash`) pinned with `--match-head-commit` to the
+commit that was checked, so a push in between makes GitHub refuse. Only after
+the PR reads `MERGED` is the ticket moved along the path to the profile's
+`Финиш:` status.
 
 ## Profile
 
@@ -31,8 +46,9 @@ the repo's git remote via `config.md`. Sections: `Jira` (site, cloudId),
 `PR` (a PR-creating skill named in the profile, or `gh pr create` rules),
 `Ревьюеры` (name → summon command → where the reply lands and how long to wait
 for it: Copilot via the reviewers API, Claude via an `@claude` comment),
+`Мерж` (the `gh pr merge` method for done),
 `Статусы` (the ticket's path through the workflow and
-the statuses to reach before work and after the PR). A missing optional
+the statuses to reach before work, after the PR and after the merge). A missing optional
 section removes the step. Profiles are plain markdown, so a team creates its own by running setup once.
 
 ## Pre-review
