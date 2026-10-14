@@ -10,13 +10,20 @@ mode, picked from a checklist. Open questions found in the ticket and the
 code are asked in one round before any work starts, in both modes. Pre-review comes before the commit so that
 fixes land in the same commit and history shows the result, not the process.
 
+Every ticket is worked in its own git worktree of the ticket branch, created
+from a fresh base wherever the agent's own rules put worktrees (CLAUDE.md,
+memory; otherwise `<main checkout>/.claude/worktrees/<branch>`) and entered with
+`EnterWorktree`, so hooks that read the session's cwd see the ticket branch.
+The main checkout is never switched; an existing worktree or local branch of
+the ticket is reused. `/ticket-to-pr:done` removes the worktree after merge.
+
 ## Commands
 
 | Command | What it does |
 | --- | --- |
 | `/ticket-to-pr:full <ticket>` | Every step the profile enables, no process questions |
 | `/ticket-to-pr:partial <ticket>` | Checklist of the profile's steps, then no questions |
-| `/ticket-to-pr:done <ticket or PR>` | Merge the ticket's PR if it is green, then move the ticket to its final status |
+| `/ticket-to-pr:done <ticket or PR>` | Merge the ticket's PR if it is green, move the ticket to its final status, remove the branch's worktree and local branch |
 | `/ticket-to-pr:setup [name]` | Create or update a profile and map the current repo to it |
 
 `<ticket>` is a `https://<site>.atlassian.net/browse/KEY-123` link or a bare
@@ -35,6 +42,14 @@ method (`gh pr merge --squash`) pinned with `--match-head-commit` to the
 commit that was checked, so a push in between makes GitHub refuse. Only after
 the PR reads `MERGED` is the ticket moved along the path to the profile's
 `Финиш:` status.
+
+Then done cleans up after the ticket: the worktree the PR branch is checked
+out in is removed with `git worktree remove` and the local branch with
+`git branch -D` (squash never makes it an ancestor of the base). It removes a
+worktree only when `git status --porcelain` is empty and its `HEAD` is the
+merged `headRefOid` — never with `--force`, never the main checkout, and it
+leaves the worktree first if the session runs inside it. Anything left behind
+is listed in the report; a failed cleanup does not undo the merge.
 
 ## Profile
 
