@@ -12,7 +12,7 @@ branch is not on the remote yet, and it never commits, merges or rebases.
 ## What the body says
 
 The ticket answers "why", so the body links to it instead of retelling it. Past
-the link, the body carries three things:
+the link, the body carries four things:
 
 - **What was done** — one or two paragraphs written from the diff, naming the
   service, file, table, topic or flag exactly. Not a per-file retelling of the
@@ -35,11 +35,21 @@ the link, the body carries three things:
     because nearly every service has one, and only the deviations are marked
     ("без dev", "не деплоится");
   - *after rollout* — flags to enable, consumers to catch up, keys to remove.
+- **Rollback** (`## Откат`) — mandatory, a numbered list of what to do if
+  something breaks after the rollout, written for the on-call engineer in the
+  middle of an incident: the kill switch first (a flag or config key) when the
+  change has one, then the previous version of the rolled-out services (with
+  the order only when it matters), and an explicit list of what a rollout does
+  not undo — migrations without a down file, data or events the new code
+  already wrote and whether the old version reads them, config keys removed
+  after rollout. Every compatibility claim is checked in the code at PR time
+  or asked before creation; a trivial rollback is one item plus the checked
+  fact ("no migrations, flags or new-format data").
 
 The body ends with the attribution footer `🤖 Generated with <tool> (<model>)`.
 
 When the repository ships a PR template, the skill follows it strictly: its
-sections, its order, no sections added (the rollout section included), the
+sections, its order, no sections added (the rollout and rollback sections included), the
 HTML comments with author hints stripped, the ticket link placed in whichever
 section is about context. The body language is Russian; an English template
 makes the body English.
