@@ -23,11 +23,33 @@ the ticket is reused. `/ticket-to-pr:done` removes the worktree after merge.
 | --- | --- |
 | `/ticket-to-pr:full <ticket>` | Every step the profile enables, no process questions |
 | `/ticket-to-pr:partial <ticket>` | Checklist of the profile's steps, then no questions |
+| `/ticket-to-pr:deploy <ticket> <contours>` | Roll the ticket branch out to the named contours through a checklist, health-check, report |
 | `/ticket-to-pr:done <ticket or PR>` | Merge the ticket's PR if it is green, move the ticket to its final status, remove the branch's worktree and local branch |
 | `/ticket-to-pr:setup [name]` | Create or update a profile and map the current repo to it |
 
 `<ticket>` is a `https://<site>.atlassian.net/browse/KEY-123` link or a bare
 key. An unmapped repository runs setup first, then continues.
+
+## Deploy
+
+`/ticket-to-pr:deploy` rolls the ticket branch out before the merge, to
+exactly the contours named in the command — it never picks one itself and is
+never inferred from a plain-language request. It walks a 14-item checklist
+and reports on every item: the PR and the services listed in its deploy
+section, contours allowed by the manifests' `allowed-datacenters`, the PR's
+pre-deploy steps confirmed, master merged into the branch, CI green on HEAD
+(external Jenkins checks included), a branch build made from HEAD that
+contains every service, nobody else deploying the service right now, the
+user's own lock in the team's lock bot and no one else's, and what each
+contour runs now (the rollback parameters). Then one deploy job run, the
+rollout read from its console, and a health check right after and again
+5 minutes later: rollout status, pods Ready, image tag, restarts / CrashLoop /
+OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
+for workers and 5xx share for HTTP services. Dev and prod in one command go in
+one run and only prod is health-checked; a single contour is checked itself.
+Any ❌ stops the run with a report — it never rolls back, restarts, takes a
+lock or resolves a merge conflict on its own. After a green prod check the
+ticket moves to the profile's `После деплоя:` status.
 
 ## Done
 
@@ -61,7 +83,9 @@ the repo's git remote via `config.md`. Sections: `Jira` (site, cloudId),
 `PR` (a PR-creating skill named in the profile, or `gh pr create` rules),
 `Ревьюеры` (name → summon command → where the reply lands and how long to wait
 for it: Copilot via the reviewers API, Claude via an `@claude` comment),
-`Мерж` (the `gh pr merge` method for done),
+`Мерж` (the `gh pr merge` method for done), `Деплой` (build and deploy jobs,
+contours with their kubectl context, lock-bot message, logs and metrics,
+wait deadlines),
 `Статусы` (the ticket's path through the workflow and
 the statuses to reach before work, after the PR and after the merge). A missing optional
 section removes the step. Profiles are plain markdown, so a team creates its own by running setup once.
