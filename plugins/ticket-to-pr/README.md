@@ -26,6 +26,7 @@ the ticket is reused. `/ticket-to-pr:done` removes the worktree after merge.
 | `/ticket-to-pr:deploy <ticket> <contours>` | Roll the ticket branch out to the named contours through a checklist, health-check, report |
 | `/ticket-to-pr:done <ticket or PR>` | Merge the ticket's PR if it is green, move the ticket to its final status, remove the branch's worktree and local branch |
 | `/ticket-to-pr:setup [name]` | Create or update a profile and map the current repo to it |
+| `/ticket-to-pr:journal` | Review the skill's journal: run summary, grouped open events, fixes to the skill, profile and profile scripts as the user picks |
 
 `<ticket>` is a `https://<site>.atlassian.net/browse/KEY-123` link or a bare
 key. An unmapped repository runs setup first, then continues.
@@ -76,6 +77,22 @@ worktree only when `git status --porcelain` is empty and its `HEAD` is the
 merged `headRefOid` — never with `--force`, never the main checkout, and it
 leaves the worktree first if the session runs inside it. Anything left behind
 is listed in the report; a failed cleanup does not undo the merge.
+
+## Journal
+
+Every command appends to `journal.md` in the plugin's data directory: an
+event the moment something goes wrong in the skill itself — an instruction
+that no longer matches reality, a retried call or workaround, a failing
+profile script, an empty answer that nearly led to a false conclusion, a
+process correction by the user — and one summary line per run (command,
+ticket, result, duration, tool calls, events). A ❌ that honestly reports the
+outside world (red CI, someone else's lock) is not an event.
+`/ticket-to-pr:journal` summarizes the runs, groups open events by where the
+fix belongs, proposes one concrete edit per group and applies only what the
+user picks: profile and scripts in the data directory, the skill in the
+plugin's source repository with a version bump (never in the plugin cache),
+committed and pushed only with consent. Closed events move to
+`journal-archive.md`.
 
 ## Profile
 
