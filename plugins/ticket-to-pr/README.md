@@ -34,7 +34,7 @@ key. An unmapped repository runs setup first, then continues.
 
 `/ticket-to-pr:deploy` rolls the ticket branch out before the merge, to
 exactly the contours named in the command — it never picks one itself and is
-never inferred from a plain-language request. It walks a 14-item checklist
+never inferred from a plain-language request. It walks a 15-item checklist
 and reports on every item: the PR and the services listed in its deploy
 section, contours allowed by the manifests' `allowed-datacenters`, the PR's
 pre-deploy steps confirmed, master merged into the branch, CI green on HEAD
@@ -45,7 +45,8 @@ contour runs now (the rollback parameters). Then one deploy job run, the
 rollout read from its console, and a health check right after and again
 5 minutes later: rollout status, pods Ready, image tag, restarts / CrashLoop /
 OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
-for workers and 5xx share for HTTP services. Dev and prod in one command go in
+for workers and 5xx share for HTTP services — plus the deploy-referee verdict
+(CPU, memory, throttling, p99 latency) read from its Slack channel. Dev and prod in one command go in
 one run and only prod is health-checked; a single contour is checked itself.
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
 lock or resolves a merge conflict on its own. After a green prod check the
