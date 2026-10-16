@@ -46,8 +46,11 @@ rollout read from its console, and a health check right after and again
 5 minutes later: rollout status, pods Ready, image tag, restarts / CrashLoop /
 OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
 for workers and 5xx share for HTTP services — plus the deploy-referee verdict
-(CPU, memory, throttling, p99 latency) read from its Slack channel. Dev and prod in one command go in
-one run and only prod is health-checked; a single contour is checked itself.
+(CPU, memory, throttling, p99 latency) read from its Slack channel. Only prod contours are health-checked: a dev-only deploy reports the rollout
+result alone, and dev and prod in one command go in one run with prod checked.
+Master is merged into the branch only when its new commits touch the deployed
+services or the packages they import. A one-line status is posted at every
+phase (preparing, deploying to dev, deploying to prod, health check).
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
 lock or resolves a merge conflict on its own. After a green prod check the
 ticket moves to the profile's `После деплоя:` status.
