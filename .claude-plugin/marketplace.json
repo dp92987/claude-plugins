@@ -51,7 +51,7 @@
       "name": "ticket-to-pr",
       "source": "./plugins/ticket-to-pr",
       "description": "Take a Jira ticket to a pull request in one manual command: open questions asked in one round first, implement in the current session inside a dedicated worktree of the ticket branch, adversarial pre-review by a Claude subagent and/or Codex with confirmed findings fixed, commit, push, PR, summoning the team's PR reviewers (Copilot, @claude) and handling every comment of their reviews, and moving the Jira ticket to In Progress before work and to review after the PR; full runs every profile step without questions, partial shows a checklist; deploy rolls the branch out to the named contours through a checklist with a health check and stops with a report on any failure; done squash-merges a green PR, moves the ticket to Done and removes the branch's worktree and local branch; per-team profiles picked by git remote; every command logs its own failures to a journal, and journal turns them into fixes of the skill, profile and profile scripts",
-      "version": "0.13.0"
+      "version": "0.13.1"
     }
   ]
 }
