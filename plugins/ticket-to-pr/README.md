@@ -53,8 +53,9 @@ Master is merged into the branch only when its new commits touch the deployed
 services or the packages they import. A one-line status is posted at every
 phase (preparing, deploying to dev, deploying to prod, health check).
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
-lock or resolves a merge conflict on its own. After a green prod check the
-ticket moves to the profile's `После деплоя:` status.
+lock or resolves a merge conflict on its own. The ticket moves to the
+profile's `При деплое:` status at the start: running the command is the
+decision that it is ready to deploy.
 
 ## Done
 
