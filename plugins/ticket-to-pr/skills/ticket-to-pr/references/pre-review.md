@@ -22,7 +22,9 @@ git ls-files --others --exclude-standard   # новые файлы — diff их
 
 ## Субагент
 
-`Agent` с `model` из профиля, `subagent_type: general-purpose`. Без
+`Agent` с `model` — псевдонимом из профиля, `subagent_type: general-purpose`.
+Не через оркестратор окружения (T3 `delegate_task` и т.п.): скилл ведёт себя
+одинаково в любом окружении. Без
 `isolation: worktree`: ревьюер должен видеть незакоммиченный дифф в этом же
 дереве. Промпт — по этому образцу, с подставленными значениями:
 
