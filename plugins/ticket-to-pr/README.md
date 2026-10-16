@@ -47,7 +47,7 @@ rollout read from its console, and a health check right after and again
 5 minutes later: rollout status, pods Ready, image tag, restarts / CrashLoop /
 OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
 for workers and 5xx share for HTTP services — plus the deploy-referee verdict
-(CPU, memory, throttling, p99 latency) read from its Slack channel. Only prod contours are health-checked: a dev-only deploy reports the rollout
+(CPU, memory, throttling, p99 latency) read from its Slack channel. Only services (Deployments) on prod contours are health-checked: a dev-only deploy and CronJob tasks on any contour report the rollout
 result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one dev run for every service as a gate, then all prod runs in parallel, one per distinct set of prod contours — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check and the referee verdicts — exactly as many as the job's judge calls — are taken once all prod runs finish.
 Master is merged into the branch only when its new commits touch the deployed
 services or the packages they import. A one-line status is posted at every
