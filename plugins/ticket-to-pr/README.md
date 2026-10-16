@@ -35,20 +35,23 @@ key. An unmapped repository runs setup first, then continues.
 
 `/ticket-to-pr:deploy` rolls the ticket branch out before the merge, to
 exactly the contours named in the command — it never picks one itself and is
-never inferred from a plain-language request. It walks a 15-item checklist
+never inferred from a plain-language request. It walks a 14-item checklist
 and reports on every item: the PR and the services listed in its deploy
 section, contours allowed by the manifests' `allowed-datacenters`, the PR's
 pre-deploy steps confirmed, master merged into the branch, CI green on HEAD
 (external Jenkins checks included), a branch build made from HEAD that
 contains every service, nobody else deploying the service right now, the
 user's own lock in the team's lock bot and no one else's, and what each
-contour runs now (the rollback parameters). Then one deploy job run, the
-rollout read from its console, and a health check right after and again
+contour runs now (the rollback parameters). Then the deploy job runs, each judged by its status
+(SUCCESS and UNSTABLE both pass — the job marks UNSTABLE only for a failed
+deploy-referee call) and by the image tag of every workload in the cluster,
+and a health check right after and again
 5 minutes later: rollout status, pods Ready, image tag, restarts / CrashLoop /
 OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
-for workers and 5xx share for HTTP services — plus the deploy-referee verdict
-(CPU, memory, throttling, p99 latency) read from its Slack channel. Only services (Deployments) on prod contours are health-checked: a dev-only deploy and CronJob tasks on any contour report the rollout
-result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one dev run for every service as a gate, then all prod runs in parallel, one per distinct set of prod contours — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check and the referee verdicts — exactly as many as the job's judge calls — are taken once all prod runs finish.
+for workers and 5xx share for HTTP services. CPU, memory and latency are not
+checked: the deploy-referee judges them against absolute thresholds rather
+than the pre-deploy level, so its verdicts are left to its channel. Only services (Deployments) on prod contours are health-checked: a dev-only deploy and CronJob tasks on any contour report the rollout
+result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one dev run for every service as a gate, then all prod runs in parallel, one per distinct set of prod contours — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check is taken once all prod runs finish.
 Master is merged into the branch only when its new commits touch the deployed
 services or the packages they import. A one-line status is posted at every
 phase (preparing, deploying to dev, deploying to prod, health check).
