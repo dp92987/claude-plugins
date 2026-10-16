@@ -48,7 +48,7 @@ rollout read from its console, and a health check right after and again
 OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
 for workers and 5xx share for HTTP services — plus the deploy-referee verdict
 (CPU, memory, throttling, p99 latency) read from its Slack channel. Only prod contours are health-checked: a dev-only deploy reports the rollout
-result alone, and dev and prod in one command go in one run with prod checked.
+result alone, and each service gets its own contours from the PR, and the rollout is a plan of rectangular runs — one dev run for every service, then one run per distinct set of prod contours — so no service is ever sent to a contour it doesn't ask for (the deployer may fail on it even when the manifest's whitelist would skip it), with each prod run health-checked before the next starts.
 Master is merged into the branch only when its new commits touch the deployed
 services or the packages they import. A one-line status is posted at every
 phase (preparing, deploying to dev, deploying to prod, health check).
