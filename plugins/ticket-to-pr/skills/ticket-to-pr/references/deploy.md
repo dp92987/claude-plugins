@@ -278,12 +278,17 @@ deploy-referee (пункт 15) по своим порогам, общим и н�
 пункте). Дальше пункты чеклиста одной строкой каждый: ✅, ❌ с причиной или ⏭
 не выполнялся. Ссылки — на сборку, на запуск деплоя, на упавшую проверку.
 
-- **Успех** — после пунктов таблица health check по контурам и чекам, статус
-  тикета и строки отката.
+- **Успех** — после пунктов таблица health check, статус тикета и строки
+  отката.
 
-Запусков в плане несколько — пункты 11–12 одной строкой на запуск
-(«11. ✅ запуск 2 — deploy-delta #70801: mp.us-east-2 × 7»), таблица health
-check — на каждый прод-запуск, столбцы — его контуры.
+Пункты 11–12 — одна строка на запуск («запуск 2 — deploy-delta #70801:
+mp.us-east-2 × 7»). Таблица health check — одна на весь деплой и одного
+вида при любом числе сервисов: строка — пара сервис×контур прод-запусков,
+столбцы — «сразу», «+5 мин», «referee». В ячейке ✅ или упавшая проверка с
+фактом (под, причина, числа); пройденные проверки не расписываются — на
+пачке сервисов это сотня строк, которые никто не читает. Под таблицей —
+одна строка «при старте» по сервисам, где были ошибки старта, с текстом
+самой частой.
 - **Провал** — пункты до провала, ❌ с фактами (имя пода, причина, строка
   лога), «что не делал» и строка отката, если выкат уже был.
 
@@ -300,7 +305,7 @@ check — на каждый прод-запуск, столбцы — его к�
   ⏭; пункт, который по правилам не делается (health check dev, судья не
   вызывался), — ✅ или ⏭ с короткой причиной, а не «—»;
 - пункты 13–15 списком не расписываются: при health check это таблица после
-  пунктов, вердикт referee — её строкой; без health check — одна строка
+  пунктов, вердикт referee — её столбцом; без health check — одна строка
   «13–15. ⏭ dev не проверяется»;
 - пояснения, ход обсуждения, решения пользователя по ходу — не в строке
   пункта: решение сокращается до факта («база впереди на 1 коммит, сервисы
@@ -335,37 +340,41 @@ check — на каждый прод-запуск, столбцы — его к�
 ### Пример: успех
 
 ```markdown
-## Деплой PX-6122 — worker-orders-notifications → dev, mp.us-east-2 ✅
+## Деплой PX-6201 — 9 воркеров my-orders и my-flight-status → dev, mp.us-east-2, gp.us-east-2, gp.eu-north-1 ✅
 
-1. ✅ PX-6122, ветка px-6122-time-change-push-display-times, PR #27458
-2. ✅ Сервисы из PR: worker-orders-notifications
-3. ✅ dev и mp.us-east-2 есть в allowed-datacenters
+1. ✅ PX-6201, ветка PX-6201-consumer-retries, PR #27650
+2. ✅ Сервисы из PR: 7 воркеров my-orders, 2 воркера my-flight-status; контуры совпали с PR
+3. ✅ Контуры по манифестам: my-orders — dev, mp.us-east-2; my-flight-status — dev, gp.us-east-2, gp.eu-north-1
 4. ✅ «До деплоя»: нет шагов
-5. ✅ Master подтянут: be21f799f5, запушен
-6. ✅ CI на be21f799f5: 8/8 (1 skipped)
-7. ✅ Сборка back-delta/px-6122-…/3 из be21f799f5, сервис собран
-8. ✅ Идущих деплоев сервиса нет
-9. ✅ Блокировки dev и prod: твоя (ещё 42 мин), чужих нет
-10. ✅ Было: dev и mp.us-east-2 — PX-5808-baggage-status-7 (#70696)
-11. ✅ запуск 1 — deploy-delta #70701: dev × 1; запуск 2 — deploy-delta #70702: mp.us-east-2 × 1
-12. ✅ запуск 1 — rolled out за 3 мин; запуск 2 — rolled out за 4 мин
+5. ✅ База впереди на 3 коммита, сервисы не задевает
+6. ✅ CI на 1f2e3d4c5b: 8/8 (1 skipped)
+7. ✅ Сборка back-delta/PX-6201-…/2 из 1f2e3d4c5b, все 9 собраны
+8. ✅ Идущих деплоев сервисов нет
+9. ✅ Блокировки dev и prod: твои (ещё 50 мин), чужих нет
+10. ✅ Прочитано 20 выкатов; у 16 ветки уже нет — откат на master-23055
+11. ✅ запуск 1 — #70801: dev × 9; запуск 2 — #70802: mp.us-east-2 × 7; запуск 3 — #70803: gp.us-east-2, gp.eu-north-1 × 2
+12. ✅ запуск 1 — 4 мин; запуски 2 и 3 параллельно — 6 мин
 
-| mp.us-east-2 | сразу | +5 мин |
-| --- | --- | --- |
-| rollout | ✅ | — |
-| Ready | 2/2 | 2/2 |
-| образ :px-6122-…-3 | ✅ | ✅ |
-| рестарты / CrashLoop / OOM | 0 | 0 |
-| старый RS | 0 | 0 |
-| error-логи, 5 мин до → после | 41 → 38 | 41 → 39 |
-| lag my-orders.worker-orders-notifications | 12 | 3 |
-| deploy-referee (Run -70702) | — | ✅ PASS |
+| сервис | контур | сразу | +5 мин | referee |
+| --- | --- | --- | --- | --- |
+| worker-orders-updater | mp.us-east-2 | ✅ | ✅ | PASS |
+| worker-orders-notifications | mp.us-east-2 | ✅ | ✅ | PASS |
+| … ещё 5 воркеров my-orders | mp.us-east-2 | ✅ | ✅ | PASS |
+| flight-status-updater-worker | gp.us-east-2 | ✅ | ✅ | PASS |
+| flight-status-updater-worker | gp.eu-north-1 | ✅ | ✅ | PASS |
+| worker-notifications | gp.us-east-2 | ✅ | ✅ | PASS |
+| worker-notifications | gp.eu-north-1 | ✅ | ✅ | PASS |
 
+При старте: worker-orders-updater 4, worker-orders-notifications 4 — `config … has unknown fields`.
 dev выкачен запуском 1, health check не делался.
 Тикет: Code Review → Ready to Merge/Deploy.
-Откат: Branch=PX-5808-baggage-status BuildNumber=7 CheckMaster=false Datacenters=dev Applications=my-orders/cmd/worker-orders-notifications/deploy
-Откат: Branch=PX-5808-baggage-status BuildNumber=7 CheckMaster=false Datacenters=mp.us-east-2 Applications=my-orders/cmd/worker-orders-notifications/deploy
+Откат: Branch=master BuildNumber=23055 CheckMaster=false Datacenters=mp.us-east-2 Applications=<7 путей my-orders>
+Откат: Branch=master BuildNumber=21927 CheckMaster=false Datacenters=gp.us-east-2,gp.eu-north-1 Applications=my-flight-status/cmd/flight-status-updater-worker
+…
 ```
+
+Строки «… ещё N» в таблице — только в этом примере; в отчёте каждая пара
+своей строкой.
 
 ### Пример: провал
 
@@ -373,12 +382,15 @@ dev выкачен запуском 1, health check не делался.
 ## Деплой PX-6122 — worker-orders-notifications → mp.us-east-2 ❌ на 13 (health check)
 
 1–10. ✅ (сборка #3, блокировка твоя, было PX-5808-baggage-status-7)
-11. ✅ deploy-delta #70702
-12. ✅ rolled out
-13. ❌ Ready 1/2: под worker-orders-notifications-7c9f…-x2k4 в CrashLoopBackOff,
-    4 рестарта; последняя ошибка: `Error starting kafka consumer: read tcp …:9092: i/o timeout`
+11. ✅ запуск 1 — deploy-delta #70702: mp.us-east-2 × 1
+12. ✅ rolled out за 4 мин
+13. ❌ worker-orders-notifications в mp.us-east-2, см. таблицу
 14. ⏭
 15. ⏭
+
+| сервис | контур | сразу | +5 мин | referee |
+| --- | --- | --- | --- | --- |
+| worker-orders-notifications | mp.us-east-2 | ❌ Ready 1/2: под …-x2k4 в CrashLoopBackOff, 4 рестарта, `Error starting kafka consumer: read tcp …:9092: i/o timeout` | ⏭ | ⏭ |
 
 Не делал: откат, перезапуск, перевод тикета.
 Откат: Branch=PX-5808-baggage-status BuildNumber=7 CheckMaster=false Datacenters=mp.us-east-2 Applications=my-orders/cmd/worker-orders-notifications/deploy
