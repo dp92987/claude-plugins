@@ -1,7 +1,7 @@
 # github-pr-creator
 
 Create a pull request from the current branch with a body a reviewer can act
-on: what was done, and how to roll it out.
+on: what the change does, in plain words, and how to roll it out and back.
 
 The skill fills exactly three things: the title, the body and the base branch.
 Labels, reviewers, draft state, assignee, milestone and projects are left alone
@@ -12,14 +12,18 @@ branch is not on the remote yet, and it never commits, merges or rebases.
 ## What the body says
 
 The ticket answers "why", so the body links to it instead of retelling it. Past
-the link, the body carries four things:
+the link, the body carries three things and nothing else:
 
-- **What was done** — one or two paragraphs written from the diff, naming the
-  service, file, table, topic or flag exactly. Not a per-file retelling of the
-  diff and not a retelling of the ticket.
-- **Verified** — one line with what actually ran in the session and its result,
-  or an explicit "not verified". An omitted line reads as "verified but not
-  written down"; an explicit one reads as a fact.
+- **Description** — prose for a teammate who knows the system but not the
+  session: what the change does and, in broad strokes, how — so they read it,
+  understand what changes, and go to the code for the details. It tells, it
+  does not steer: no "the key place to review", no "worth checking".
+  Written from the diff, in domain words; identifiers only where they help find
+  the place in the diff. No per-file retelling, no retelling of the ticket, no
+  work history (test runs, review rounds, discarded options), and no extra
+  sections — "verified", "decisions", "review notes" are not added even when a
+  calling skill asks for them; whatever of that a reviewer needs becomes a
+  sentence in the description.
 - **Rollout** (`## Деплой`) — mandatory, three blocks in time order, each a
   bold label over a numbered list, an empty block spelled out as "Нет.":
   - *before rollout* — secrets (name and vault path, never a value), config

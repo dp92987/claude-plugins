@@ -61,8 +61,9 @@ Skills: `jira-session-report`.
 Create a GitHub pull request from the current branch, filling only the title,
 the body and the base branch — labels, reviewers, draft and assignee are left
 alone. The title is conventional-commits with the Jira key from the branch
-name; the body is the clickable ticket link, a short "what was done" written
-from the diff, a "verified" line, and a mandatory rollout section: which
+name; the body is only the clickable ticket link, a plain-language description
+for the reviewer of what the change does, written from the diff, a mandatory
+rollback section, and a mandatory rollout section: which
 services, into which production clusters (read from each service's deploy
 manifest at PR time), in what order, and which config keys and secrets must
 exist before and after — names and paths, never values. A repository PR

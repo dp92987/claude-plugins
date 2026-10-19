@@ -44,8 +44,8 @@
     {
       "name": "github-pr-creator",
       "source": "./plugins/github-pr-creator",
-      "description": "Create a GitHub PR from the current branch: conventional title with the Jira key, body of ticket link + what was done + verified line + a mandatory rollout section (only services that must actually be rolled out, production clusters read from deploy manifests, order, config keys and secret names before/after) and a mandatory rollback section (kill switch, previous version, what a rollout does not undo); fills only title, body and base; follows the repo's PR template strictly when present",
-      "version": "0.2.0"
+      "description": "Create a GitHub PR from the current branch: conventional title with the Jira key, body of only ticket link + plain-language description for the reviewer + a mandatory rollout section (only services that must actually be rolled out, production clusters read from deploy manifests, order, config keys and secret names before/after) and a mandatory rollback section (kill switch, previous version, what a rollout does not undo); fills only title, body and base; follows the repo's PR template strictly when present",
+      "version": "0.3.0"
     },
     {
       "name": "ticket-to-pr",
