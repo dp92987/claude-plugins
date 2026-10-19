@@ -85,7 +85,7 @@ the team's PR reviewers (Copilot through the reviewers API, Claude through an
 `@claude` comment) → wait for their reviews and handle every comment, with the
 Jira ticket moved to the profile's statuses before
 work and after the PR. Open questions from the ticket and the code are asked
-in one round before work starts; the answers go into the PR body. Team specifics live in per-team profiles
+in one round before work starts; the answers are context for the PR creator, which alone writes the body. Team specifics live in per-team profiles
 under the plugin's data directory, picked by git remote and created by
 `/ticket-to-pr:setup`; an unmapped repo runs setup first. Requires `gh` and the
 Atlassian MCP server; `codex` optional.

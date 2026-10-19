@@ -120,8 +120,9 @@ section removes the step. Profiles are plain markdown, so a team creates its own
 Selected reviewers run in parallel on the whole branch diff plus uncommitted
 changes, with the ticket and the author's assumptions as context, in
 adversarial mode. Each finding is verified against the code; confirmed ones
-are fixed and the reviewers run once more. What remains goes into the PR body
-and the final report. An unavailable reviewer is skipped and reported, never
+are fixed and the reviewers run once more. What remains goes into the final
+report, not the PR body: the body describes the change, not the work on it, and
+is written by the PR creator alone. An unavailable reviewer is skipped and reported, never
 silently replaced by self-review.
 
 ## PR reviews
