@@ -7,6 +7,7 @@
 """
 
 import argparse
+import fnmatch
 import json
 import os
 import subprocess
@@ -30,6 +31,9 @@ NOISE_DIRS = {
 }
 NOISE_SUFFIXES = (".pyc", ".pyo", ".class", ".log", ".tmp", ".swp", ".swo",
                   ".orig", ".rej")
+# Пути от корня дерева. Бинарник линтера с версией в имени make скачивает
+# заново по контрольной сумме, а по имени файла его не отличить от чужого .bin.
+NOISE_PATHS = (".bin/golangci-lint-v*",)
 
 
 def is_noise(path):
@@ -37,7 +41,25 @@ def is_noise(path):
     if any(seg in NOISE_DIRS for seg in parts):
         return True
     name = parts[-1]
-    return name in NOISE_NAMES or name.endswith(NOISE_SUFFIXES)
+    if name in NOISE_NAMES or name.endswith(NOISE_SUFFIXES):
+        return True
+    return any(fnmatch.fnmatch(path.rstrip("/"), g) for g in NOISE_PATHS)
+
+
+def is_noise_entry(worktree, path):
+    """git сворачивает игнорируемый каталог в одну строку `.bin/`, поэтому
+    мусор, заданный путём внутри каталога, виден только по его содержимому."""
+    if is_noise(path):
+        return True
+    if not path.endswith("/"):
+        return False
+    found = False
+    for dirpath, _, names in os.walk(os.path.join(worktree, path)):
+        for n in names:
+            if not is_noise(os.path.relpath(os.path.join(dirpath, n), worktree)):
+                return False
+            found = True
+    return found
 
 
 def git(repo, *args, check=False):
@@ -188,8 +210,9 @@ def inspect(path, repo, default, main_path):
     ignored = [l[3:] for l in (out(path, "status", "--porcelain", "--ignored") or "").splitlines()
                if l.startswith("!! ")]
     w["ignored"] = len(ignored)
-    w["ignored_noise"] = len([p for p in ignored if is_noise(p)])
-    w["ignored_review"] = [p for p in ignored if not is_noise(p)]
+    noise = [p for p in ignored if is_noise_entry(path, p)]
+    w["ignored_noise"] = len(noise)
+    w["ignored_review"] = [p for p in ignored if p not in noise]
 
     # rev-parse без проверки кода возврата печатает саму строку HEAD@{upstream},
     # если upstream нет — отсюда обязательная проверка returncode.
@@ -302,7 +325,7 @@ def report(repos):
                     print(f"        {p}")
             if w["ignored_noise"]:
                 print(f"      игнорируемого мусора: {w['ignored_noise']} "
-                      f"(.DS_Store, каталоги IDE и сборки — спрашивать не о чем)")
+                      f"(.DS_Store, каталоги IDE и сборки, бинарник линтера — спрашивать не о чем)")
             if w.get("locked"):
                 print("      worktree заблокирован (locked)")
             if w.get("prunable"):

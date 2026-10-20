@@ -1,6 +1,6 @@
 {
   "name": "worktree-janitor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Inventory and clean up git worktrees via /worktree-janitor:worktree-janitor — proves per tree whether its work can be lost (uncommitted files, unpushed commits, merged into the default branch including squash-merges) and deletes only when asked, never with --force and never touching branches. Explicit invocation only.",
   "author": {
     "name": "dp92987"
