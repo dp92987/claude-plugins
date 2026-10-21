@@ -107,6 +107,15 @@ coverage honest: without it, a rule added tomorrow would never be checked
 against any file already stamped, and the pass would report "already
 reviewed" while silently not reviewing.
 
+Match the path by its repo-relative part, not the whole absolute path: a
+stamp counts for `<repo-relative path>` when the stamped path ends with
+`/<repo-relative path>`. Worktrees of one repo share relative paths, so a file
+reviewed in its own branch's worktree stays reviewed when the same content
+lands in another worktree — a combined branch built from several unmerged
+PRs, or a branch moved to a new worktree. The content hash still has to
+match, so a changed file is never skipped; the relative path still has to
+match, so file-level rules that depend on the file's name keep their footing.
+
 Nothing left after filtering → early exit saying the changes were already
 reviewed. That is a success; don't fan out to prove it.
 
@@ -186,7 +195,8 @@ file whose findings the user hasn't addressed stays unstamped; stamping it
 would mean the next pass skips it and the violations sail into the PR.
 
 Replace any previous line for that path; absolute paths, since one stamp file
-serves every repo and worktree. Do this after fixes, so the hash matches the
+serves every repo and worktree (matching reads only their repo-relative
+tail, see Step 1). Do this after fixes, so the hash matches the
 final content. Skip the stamp entirely when reviewing a branch or range that
 isn't the working tree.
 

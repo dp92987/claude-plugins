@@ -45,6 +45,17 @@ TOP="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 cd "$TOP" || exit 0
 
 DEFAULT_REF="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || echo origin/master)"
+# PR в стек (gh pr create --base <ветка родителя>) несёт только диапазон
+# база..HEAD: файлы родительского PR ревьюятся в его собственном PR, и
+# требовать их штампы здесь — значит блокировать чужим кодом
+PR_BASE="$(printf '%s' "$CMD" | grep -oE -- '(--base|-B)([[:space:]]+|=)[^[:space:]"'"'"']+' | head -n 1 | sed -E 's/^(--base|-B)([[:space:]]+|=)//')"
+if [ -n "$PR_BASE" ]; then
+  if git rev-parse --verify -q "origin/$PR_BASE" >/dev/null; then
+    DEFAULT_REF="origin/$PR_BASE"
+  elif git rev-parse --verify -q "$PR_BASE" >/dev/null; then
+    DEFAULT_REF="$PR_BASE"
+  fi
+fi
 BASE="$(git merge-base HEAD "$DEFAULT_REF" 2>/dev/null)" || exit 0
 [ -n "$BASE" ] || exit 0
 
@@ -57,9 +68,15 @@ while IFS= read -r f; do
   [ -f "$f" ] || continue
   # сгенерированный код ревью не смотрит — не требовать штампа и здесь
   head -n 20 "$f" | grep -qE '^// Code generated .* DO NOT EDIT\.$' && continue
-  abs="$TOP/$f"
   h="$(sha256sum "$f" | cut -d' ' -f1)"
-  grep -qxF "$h $TASTE_HASH $abs" "$STAMP" 2>/dev/null || UNREVIEWED="$UNREVIEWED  $f
+  # путь сверяется по хвосту относительно корня репо: файл, проверенный в
+  # ворктри своей ветки, засчитывается и в сводной ветке в другом ворктри
+  awk -v h="$h" -v t="$TASTE_HASH" -v rel="/$f" '
+    $1 == h && $2 == t {
+      p = substr($0, length($1) + length($2) + 3)
+      if (length(p) >= length(rel) && substr(p, length(p) - length(rel) + 1) == rel) { found = 1; exit }
+    }
+    END { exit !found }' "$STAMP" 2>/dev/null || UNREVIEWED="$UNREVIEWED  $f
 "
 done <<< "$CHANGED"
 
