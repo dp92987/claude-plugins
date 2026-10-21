@@ -71,8 +71,18 @@ codex --version && codex login status
 `pgrep -f '<часть команды>'` тоже нельзя: шаблон находит в списке процессов и
 сам цикл ожидания, и оболочку-обёртку, поэтому цикл не завершается никогда.
 
+Промпт — файлом через Write, а не heredoc: в ворктри-изоляции харнесс
+отказывает команде с heredoc и редиректами («too complex to verify»,
+PX-5985, PX-5984, 2026-10-19). Запуск — из cwd ворктри, без `cd`: у
+`codex exec review` нет флага `-C`.
+
 ```bash
-codex exec review -o <scratchpad>/codex-review.md - > <scratchpad>/codex-review-run.log 2>&1 <<'EOF'
+codex exec review -o <scratchpad>/codex-review.md - < <scratchpad>/codex-prompt.md > <scratchpad>/codex-review-run.log 2>&1
+```
+
+Содержимое `codex-prompt.md`:
+
+```text
 Review the uncommitted and branch changes against origin/<база> (staged,
 unstaged, untracked, and commits since the merge base).
 Context: ticket <KEY-123> — <заголовок>. <Абзац постановки.>
@@ -84,8 +94,12 @@ paths, rollback and partial failure, compatibility with what is deployed.
 For each finding give severity, file:line, the concrete failure mode, and a
 fix direction. Only findings you can defend from the code; no style notes.
 If the change looks safe, say so and name residual test gaps.
-EOF
 ```
+
+Фоновый Codex умирает вместе с сессией Claude Code. После рестарта сессии
+посреди pre-review проверь, есть ли файл `-o`: нет его — запуск оборвался,
+перезапусти ту же команду (для `codex exec resume` — тот же `resume`), а не
+читай обрывок лога как итог (PX-6212, 2026-10-20).
 
 Флаги цели (`--uncommitted`, `--base`) с кастомной инструкцией CLI не
 принимает — цель названа первой строкой промпта. Модель не переопределяй:

@@ -51,10 +51,10 @@ OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
 for workers and 5xx share for HTTP services. CPU, memory and latency are not
 checked: the deploy-referee judges them against absolute thresholds rather
 than the pre-deploy level, so its verdicts are left to its channel. Only services (Deployments) on prod contours are health-checked: a dev-only deploy and CronJob tasks on any contour report the rollout
-result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one dev run for every service as a gate, then all prod runs in parallel, one per distinct set of prod contours — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check is taken once all prod runs finish.
+result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one run per distinct set of contours, dev counted like any prod contour, all runs in parallel with no "dev first" gate — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check is taken once all runs with prod contours finish.
 Master is merged into the branch only when its new commits touch the deployed
 services or the packages they import. A one-line status is posted at every
-phase (preparing, deploying to dev, deploying to prod, health check).
+phase (preparing, deploying, each finished contour, health check).
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
 lock or resolves a merge conflict on its own. The ticket moves to the
 profile's `При деплое:` status at the start: running the command is the
@@ -81,6 +81,10 @@ worktree only when `git status --porcelain` is empty and its `HEAD` is the
 merged `headRefOid` — never with `--force`, never the main checkout, and it
 leaves the worktree first if the session runs inside it. Anything left behind
 is listed in the report; a failed cleanup does not undo the merge.
+
+Last, done counts the open events in the journal (`Статус: открыто`) and, if
+there are any, names the count after the report and suggests
+`/ticket-to-pr:journal` — it never runs the review itself.
 
 ## Journal
 
