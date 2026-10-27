@@ -157,12 +157,18 @@ when they touch the evidence, the verifier.
 A `PreToolUse` hook on Bash (`hooks/commit-gate.sh`) guards `git commit` on a
 ticket branch that has an acceptance file. `hooks/find-commits.py` parses the
 command with a shell tokenizer, in execution order, to find every commit and
-the directory it runs in (`cd`, `git -C`). The commit goes through only when
+the directory it runs in: `cd` (not leaking out of `( … )` or a pipeline),
+`git -C`, env prefixes and wrappers (`env`, `command`, `time`, …), newlines,
+comments and redirections. The parse is deliberately narrow — the gate guards
+against a model that forgot a step, not against deliberate evasion: `sh -c`,
+`eval`, `xargs`, aliases and functions are not followed, and the skill already
+asks for plain commands in the ticket worktree. The commit goes through only when
 the verifier left no `не выполнен` criterion, the real index tree
 (`git write-tree`) equals the `проверено:` fingerprint written after the last
 automated checks (`scripts/tree-hash`: HEAD's tree plus every change and new
 file, built in a throwaway index), and no tracked file has unstaged changes.
-`-a`, `--only`, `--include`, `--patch` and pathspecs are refused on a ticket
+`-a`, `--only`, `--include`, `--patch` (and their abbreviations) and
+pathspecs are refused on a ticket
 branch, because they commit a tree other than the checked index; a directory
 given by a variable is refused everywhere, because the hook cannot tell which
 repository it is. The order of steps lives in the skill text, which a model can
