@@ -7,106 +7,83 @@
 set -u
 
 command -v jq >/dev/null 2>&1 || exit 0
+command -v python3 >/dev/null 2>&1 || exit 0
 
 INPUT="$(cat)"
-CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' | tr '\n' ' ')"
+CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty')"
+CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // empty')"
+[ -d "$CWD" ] || exit 0
 
-# git с глобальными флагами перед подкомандой (git -C <путь> commit) тоже коммит
-printf '%s' "$CMD" | grep -Eq '(^|[;&|[:space:]])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+commit([[:space:]]|$)' || exit 0
-case "$CMD" in *--help*) exit 0 ;; esac
+# быстрый отсев: разбор токенизатором нужен только командам, где есть git и commit
+case "$CMD" in *git*commit*) ;; *) exit 0 ;; esac
 
-DIR="$(printf '%s' "$INPUT" | jq -r '.cwd // empty')"
-[ -d "$DIR" ] || exit 0
+# каталог каждого коммита и пути в нём — по разбору команды в порядке выполнения
+COMMITS="$(printf '%s' "$CMD" | python3 -I "$(dirname "$0")/find-commits.py" "$CWD")" || exit 0
+[ -n "$COMMITS" ] || exit 0
 
-ambiguous() {
-  cat >&2 <<EOF
-ticket-to-pr: не удалось однозначно определить, в каком репозитории идёт коммит
-(путь в «cd» или «git -C» задан переменной или подстановкой). Закоммить
-простой командой «git commit …» из ворктри тикета.
-EOF
+block() {
+  printf 'ticket-to-pr: %s\n' "$1" >&2
   exit 2
 }
 
-# каталог коммита — не всегда cwd сессии: «cd <путь> && git commit» и
-# «git -C <путь> commit» коммитят другое дерево, и проверять надо его
-resolve() {
-  local p="$1"
-  p="${p%\"}"; p="${p#\"}"; p="${p%\'}"; p="${p#\'}"
-  case "$p" in *'$'*|*'`'*) ambiguous ;; esac
-  case "$p" in "~") p="$HOME" ;; "~/"*) p="$HOME/${p#\~/}" ;; esac
-  case "$p" in /*) DIR="$p" ;; *) DIR="$DIR/$p" ;; esac
-}
-CD_PATH="$(printf '%s' "$CMD" | grep -oE '(^|[;&|[:space:]])cd[[:space:]]+[^;&|[:space:]]+' | tail -n 1 | sed -E 's/^[;&|[:space:]]*cd[[:space:]]+//')"
-[ -n "$CD_PATH" ] && resolve "$CD_PATH"
-C_PATH="$(printf '%s' "$CMD" | grep -oE '(^|[;&|[:space:]])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+commit' | grep -oE -- '-C[[:space:]]+[^[:space:]]+' | tail -n 1 | sed -E 's/^-C[[:space:]]+//')"
-[ -n "$C_PATH" ] && resolve "$C_PATH"
+# $1 — каталог коммита, $2 — флаг или путь, меняющий состав коммита (если есть)
+check_dir() {
+  cd "$1" 2>/dev/null || return 0
+  git rev-parse --show-toplevel >/dev/null 2>&1 || return 0
 
-[ -d "$DIR" ] || exit 0
-cd "$DIR" || exit 0
-git rev-parse --show-toplevel >/dev/null 2>&1 || exit 0
+  local branch key acc result failed checked staged
+  branch="$(git branch --show-current 2>/dev/null)"
+  key="$(printf '%s' "$branch" | grep -oE '[A-Za-z][A-Za-z0-9]+-[0-9]+' | head -n 1 | tr '[:lower:]' '[:upper:]')"
+  [ -n "$key" ] || return 0
+  acc="$HOME/.cache/$key/acceptance.md"
+  # файла критериев нет — ветку ведёт не конвейер ticket-to-pr, охранять нечего
+  [ -f "$acc" ] || return 0
 
-BRANCH="$(git branch --show-current 2>/dev/null)"
-KEY="$(printf '%s' "$BRANCH" | grep -oE '[A-Za-z][A-Za-z0-9]+-[0-9]+' | head -n 1 | tr '[:lower:]' '[:upper:]')"
-[ -n "$KEY" ] || exit 0
-ACC="$HOME/.cache/$KEY/acceptance.md"
-# файла критериев нет — ветку ведёт не конвейер ticket-to-pr, охранять нечего
-[ -f "$ACC" ] || exit 0
+  # флаги и пути меняют состав коммита уже после проверки индекса, и в коммит
+  # уходит сочетание файлов, которое не проверялось
+  [ -z "${2:-}" ] || block "коммит с $2 собирает не индекс, а другое дерево — его не
+проверить. Застейдж изменения отдельной командой «git add …» и коммить
+«git commit» без -a, --only/-o, --include/-i, --patch/-p и без путей."
 
-RESULT="$(awk '/^## Итог верификации/ { on = 1; next } /^## / { on = 0 } on' "$ACC")"
+  result="$(awk '/^## Итог верификации/ { on = 1; next } /^## / { on = 0 } on' "$acc")"
 
-# невыполненный критерий блокирует независимо от отпечатка: сбой хэширования
-# не должен открывать дорогу коду, который проверяющий уже отверг
-FAILED="$(printf '%s\n' "$RESULT" | grep -E '^[0-9]+\. не выполнен' || true)"
-if [ -n "$FAILED" ]; then
-  cat >&2 <<EOF
-ticket-to-pr: проверяющий шага 5б отметил невыполненные критерии:
-$FAILED
-Доделай и проверь заново; не сошлось за два круга — останов до коммита с отчётом.
-EOF
-  exit 2
-fi
+  # невыполненный критерий блокирует независимо от отпечатка: сбой хэширования
+  # не должен открывать дорогу коду, который проверяющий уже отверг
+  failed="$(printf '%s\n' "$result" | grep -E '^[0-9]+\. не выполнен' || true)"
+  [ -z "$failed" ] || block "проверяющий шага 5б отметил невыполненные критерии:
+$failed
+Доделай и проверь заново; не сошлось за два круга — останов до коммита с отчётом."
 
-CHECKED="$(printf '%s\n' "$RESULT" | sed -nE 's/^проверено: ([0-9a-f]+).*/\1/p' | head -n 1)"
-if [ -z "$CHECKED" ]; then
-  cat >&2 <<EOF
-ticket-to-pr: в $ACC нет строки «проверено:» — автоматические проверки шага 5а
+  checked="$(printf '%s\n' "$result" | sed -nE 's/^проверено: ([0-9a-f]+).*/\1/p' | head -n 1)"
+  [ -n "$checked" ] || block "в $acc нет строки «проверено:» — автоматические проверки шага 5а
 для этого кода не прогонялись. Прогони шаг 5а (он запишет отпечаток через
-scripts/tree-hash) и повтори коммит.
-EOF
-  exit 2
-fi
+scripts/tree-hash) и повтори коммит."
 
-# коммит записывает индекс, а не рабочее дерево: сверяется именно он, иначе в
-# коммит уйдёт старая версия файла, застейдженная до проверенной правки
-if ! STAGED="$(git write-tree 2>&1)"; then
-  cat >&2 <<EOF
-ticket-to-pr: не удалось получить дерево индекса — проверить коммит нечем:
-$STAGED
-Разреши конфликты в индексе и повтори коммит.
-EOF
-  exit 2
-fi
-if [ "$STAGED" != "$CHECKED" ]; then
-  cat >&2 <<EOF
-ticket-to-pr: в индексе не то дерево, что прошло шаг 5а.
+  # коммит записывает индекс, а не рабочее дерево: сверяется именно он, иначе в
+  # коммит уйдёт старая версия файла, застейдженная до проверенной правки
+  staged="$(git write-tree 2>&1)" || block "не удалось получить дерево индекса — проверить коммит нечем:
+$staged
+Разреши конфликты в индексе и повтори коммит."
+  [ "$staged" = "$checked" ] || block "в индексе не то дерево, что прошло шаг 5а.
 - Код менялся после проверок — повтори шаг 5а (и 5б, если правка задела код,
   которым доказан критерий).
-- Иначе застейдж все проверенные изменения отдельной командой «git add …»,
-  убери из ворктри посторонние файлы и коммить «git commit» без -a и без путей:
-  флаги и пути меняют индекс уже после этой проверки.
-EOF
-  exit 2
-fi
+- Иначе застейдж все проверенные изменения отдельной командой «git add …» и
+  убери из ворктри посторонние файлы."
 
-# незастейдженная правка отслеживаемого файла — непроверенный код, и «-a» или
-# пути в команде добавят её в индекс уже после этой проверки
-if ! git diff --quiet; then
-  cat >&2 <<EOF
-ticket-to-pr: в ворктри есть незастейдженные правки после шага 5а — они не
-проверены. Повтори шаг 5а, застейдж изменения отдельной командой «git add …» и
-коммить «git commit» без -a и без путей.
-EOF
-  exit 2
-fi
+  # незастейдженная правка отслеживаемого файла — непроверенный код
+  git diff --quiet || block "в ворктри есть незастейдженные правки после шага 5а — они не
+проверены. Повтори шаг 5а и застейдж изменения отдельной командой «git add …»."
+}
+
+while IFS= read -r line; do
+  kind="${line%% *}"
+  value="${line#* }"
+  case "$kind" in
+    AMBIG) block "не удалось определить, в каком репозитории идёт коммит ($value).
+Закоммить простой командой «git commit …» из ворктри тикета." ;;
+    PATHS) (check_dir "${value%%|*}" "${value#*|}") || exit $? ;;
+    DIR) (check_dir "$value") || exit $? ;;
+  esac
+done <<< "$COMMITS"
 
 exit 0

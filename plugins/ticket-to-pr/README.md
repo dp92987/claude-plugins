@@ -141,8 +141,9 @@ cannot be checked. The file changes later only through a question to the
 user, and the ticket is updated with it.
 
 Tests for the criteria are written before the fix. The automated checks run
-the profile's commands, prove every new test fails with the production
-changes stashed, and list test-weakening signals (deleted cases, added skips,
+the profile's commands, prove every new test fails on the base branch (the
+test files copied into a throwaway worktree of the base; the proof is kept
+until the test changes), and list test-weakening signals (deleted cases, added skips,
 changed expectations). Then an independent Claude subagent — fresh context,
 no author session — reruns the evidence itself and reports per criterion
 (met / not met / after rollout / unverifiable), diff hunks that serve no
@@ -154,13 +155,19 @@ when they touch the evidence, the verifier.
 ## Commit gate
 
 A `PreToolUse` hook on Bash (`hooks/commit-gate.sh`) guards `git commit` on a
-ticket branch that has an acceptance file: the commit goes through only when
-the `проверено:` fingerprint written after the last automated checks matches
-the current working tree (`scripts/tree-hash`: HEAD's tree plus every change
-and new file, built in a throwaway index) and the verifier left no
-`не выполнен` criterion. The order of steps lives in the skill text, which a
-model can skip; the hook is its deterministic backstop. Branches without an
-acceptance file are not touched, and `jq` missing turns the hook off.
+ticket branch that has an acceptance file. `hooks/find-commits.py` parses the
+command with a shell tokenizer, in execution order, to find every commit and
+the directory it runs in (`cd`, `git -C`). The commit goes through only when
+the verifier left no `не выполнен` criterion, the real index tree
+(`git write-tree`) equals the `проверено:` fingerprint written after the last
+automated checks (`scripts/tree-hash`: HEAD's tree plus every change and new
+file, built in a throwaway index), and no tracked file has unstaged changes.
+`-a`, `--only`, `--include`, `--patch` and pathspecs are refused on a ticket
+branch, because they commit a tree other than the checked index; a directory
+given by a variable is refused everywhere, because the hook cannot tell which
+repository it is. The order of steps lives in the skill text, which a model can
+skip; the hook is its deterministic backstop. Branches without an acceptance
+file are not touched, and a missing `jq` or `python3` turns the hook off.
 
 ## Pre-review
 
