@@ -22,7 +22,8 @@ git ls-files --others --exclude-standard   # новые файлы — diff их
 
 ## Субагент
 
-`Agent` с `model` — псевдонимом из профиля, `subagent_type: general-purpose`.
+`Agent` с `model` — псевдонимом из профиля, `effort` — усилием из профиля,
+если оно указано, `subagent_type: general-purpose`.
 Не через оркестратор окружения (T3 `delegate_task` и т.п.): скилл ведёт себя
 одинаково в любом окружении. Без
 `isolation: worktree`: ревьюер должен видеть незакоммиченный дифф в этом же
@@ -77,7 +78,7 @@ PX-5985, PX-5984, 2026-10-19). Запуск — из cwd ворктри, без 
 `codex exec review` нет флага `-C`.
 
 ```bash
-codex exec review -o <scratchpad>/codex-review.md - < <scratchpad>/codex-prompt.md > <scratchpad>/codex-review-run.log 2>&1
+codex exec review -m <модель> -c model_reasoning_effort="<усилие>" -o <scratchpad>/codex-review.md - < <scratchpad>/codex-prompt.md > <scratchpad>/codex-review-run.log 2>&1
 ```
 
 Содержимое `codex-prompt.md`:
@@ -102,8 +103,10 @@ If the change looks safe, say so and name residual test gaps.
 читай обрывок лога как итог (PX-6212, 2026-10-20).
 
 Флаги цели (`--uncommitted`, `--base`) с кастомной инструкцией CLI не
-принимает — цель названа первой строкой промпта. Модель не переопределяй:
-`~/.codex/config.toml` пользователя уже задаёт её.
+принимает — цель названа первой строкой промпта. Модель и усилие — из строки
+Codex в профиле; что в ней не указано, флагом не передаётся, и значение
+берётся из `~/.codex/config.toml` пользователя. Явное значение в профиле
+нужно, чтобы ревью не поменялось молча вместе с личным конфигом Codex.
 
 `<scratchpad>` — каталог scratchpad сессии, если окружение его даёт, иначе
 `mktemp -d`.
