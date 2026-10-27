@@ -180,8 +180,8 @@ file are not touched, and a missing `jq` or `python3` turns the hook off.
 ## Pre-review
 
 Selected reviewers run in parallel on the whole branch diff plus uncommitted
-changes, with the ticket, the agreed decisions and the acceptance criteria as
-context, in adversarial mode, looking only for what the diff breaks. Each finding
+changes, with the full ticket and the acceptance criteria (including the user's
+decisions) as context — never the author's own choices, in adversarial mode, looking only for what the diff breaks. Each finding
 is `blocking` (the intended case is wrong, or callers hit a real bug on the
 task's path) or `non-blocking` (everything else), with a scenario and, for
 blocking ones, a failing test or output as proof. Review is a negotiation kept in a findings ledger:
