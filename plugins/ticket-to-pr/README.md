@@ -154,9 +154,20 @@ when they touch the evidence, the verifier.
 ## Pre-review
 
 Selected reviewers run in parallel on the whole branch diff plus uncommitted
-changes, with the ticket and the author's assumptions as context, in
-adversarial mode. Each finding is verified against the code; confirmed ones
-are fixed and the reviewers run once more. What remains goes into the final
+changes, with the ticket, the agreed decisions and the acceptance criteria as
+context, in adversarial mode, looking only for what the diff breaks. Each finding
+is `blocking` (the intended case is wrong, or callers hit a real bug on the
+task's path) or `non-blocking` (everything else), with a scenario and, for
+blocking ones, a failing test or output as proof. Review is a negotiation kept in a findings ledger:
+the author re-grades every finding against the code, fixes confirmed blocking
+ones with the narrowest fix, takes a non-blocking one only when it stays inside
+the diff, adds no behavior and is what a human reviewer would ask for, and
+disputes the rest with evidence. Later rounds go to the same reviewer session
+when the mechanism allows, cover only open findings and changed code, and run
+until every reviewer approves or only non-blocking remain — 3 rounds, up to 5
+for security, data loss or concurrency. Only a dispute stuck after two
+exchanges, an open blocker at the end of the budget, or a fix outside the
+ticket reaches the user. What remains goes into the final
 report, not the PR body: the body describes the change, not the work on it, and
 is written by the PR creator alone. An unavailable reviewer is skipped and reported, never
 silently replaced by self-review.

@@ -89,7 +89,7 @@ the fix, test-weakening signals) → verification of every criterion by an
 independent verifier (up to two fix rounds, an unmet criterion stops
 before the commit) → adversarial pre-review by
 reviewers the profile names by model and effort, launched by whatever the
-environment offers (a native subagent, an orchestrator, the provider's CLI), with confirmed findings fixed and one re-check
+environment offers (a native subagent, an orchestrator, the provider's CLI), negotiated over a findings ledger until the reviewers approve (up to 3 rounds; only stuck disputes reach the user)
 → commit → push → PR (via a PR-creating skill named in the profile) → summon
 the team's PR reviewers (Copilot through the reviewers API, Claude through an
 `@claude` comment) → wait for their reviews and handle every comment, with the
