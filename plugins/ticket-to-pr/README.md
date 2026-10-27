@@ -151,6 +151,17 @@ Up to two fix rounds; a criterion still unmet stops the pipeline before the
 commit. Fixes from pre-review and PR reviews rerun the automated checks and,
 when they touch the evidence, the verifier.
 
+## Commit gate
+
+A `PreToolUse` hook on Bash (`hooks/commit-gate.sh`) guards `git commit` on a
+ticket branch that has an acceptance file: the commit goes through only when
+the `проверено:` fingerprint written after the last automated checks matches
+the current working tree (`scripts/tree-hash`: HEAD's tree plus every change
+and new file, built in a throwaway index) and the verifier left no
+`не выполнен` criterion. The order of steps lives in the skill text, which a
+model can skip; the hook is its deterministic backstop. Branches without an
+acceptance file are not touched, and `jq` missing turns the hook off.
+
 ## Pre-review
 
 Selected reviewers run in parallel on the whole branch diff plus uncommitted

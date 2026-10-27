@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Отпечаток рабочего дерева: tree-объект HEAD плюс все правки и новые файлы, кроме
+# игнорируемых. Один и тот же скрипт пишет отпечаток после шага 5а и сверяет его
+# в хуке коммита — иначе два способа посчитать разошлись бы на первой мелочи.
+# Индекс временный: настоящий индекс сессии не трогается.
+set -eu
+
+TOP="$(git rev-parse --show-toplevel)"
+IDX="$(mktemp)"
+trap 'rm -f "$IDX"' EXIT
+cd "$TOP"
+GIT_INDEX_FILE="$IDX" git read-tree HEAD
+GIT_INDEX_FILE="$IDX" git add -A
+GIT_INDEX_FILE="$IDX" git write-tree
