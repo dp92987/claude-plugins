@@ -117,8 +117,8 @@ Everything team-specific lives in `profiles/<name>.md` under the plugin's data
 directory (`~/.claude/plugins/data/ticket-to-pr-<marketplace>/`), picked by
 the repo's git remote via `config.md`. Sections: `Jira` (site, cloudId),
 `Ветка` (base, naming), `Проверка` (test/lint commands), `Верификация`
-(the model of the criteria verifier), `Pre-review`
-(Claude subagent with a model id, Codex, or both), `Коммит` (message format),
+(the verifier's model and reasoning effort), `Pre-review`
+(one line per reviewer: model and reasoning effort), `Коммит` (message format),
 `PR` (a PR-creating skill named in the profile, or `gh pr create` rules),
 `Ревьюеры` (name → summon command → where the reply lands and how long to wait
 for it: Copilot via the reviewers API, Claude via an `@claude` comment),
@@ -161,6 +161,15 @@ report, not the PR body: the body describes the change, not the work on it, and
 is written by the PR creator alone. An unavailable reviewer is skipped and reported, never
 silently replaced by self-review.
 
+The profile names each reviewer by model and reasoning effort (`opus`,
+`sol` — the latest of the family — or an exact id), never by launch command: the session picks the mechanism its
+environment offers — the built-in subagent tool for its own provider's models,
+an orchestrator that runs other providers' agents, or the provider's CLI —
+as long as it gives a fresh context, the same working tree, the full result
+and a completion signal. The same profile therefore works in a terminal and
+in a host with task delegation. Known pitfalls of the Codex CLI are kept as
+notes, not as the prescribed route.
+
 ## PR reviews
 
 A summoned reviewer is a promise to handle its review. The skill waits for
@@ -182,6 +191,7 @@ is reported and does not stop the pipeline.
 
 ## Requirements
 
-`gh` (authenticated), the Atlassian MCP server; `codex` only if the profile
-lists it. Other plugins' PreToolUse gates on PR creation are respected: the skill
+`gh` (authenticated), the Atlassian MCP server; for a reviewer on another
+provider's model, a way to run it in the session's environment (an
+orchestrator or the provider's CLI, such as `codex`). Other plugins' PreToolUse gates on PR creation are respected: the skill
 follows their instructions and retries.
