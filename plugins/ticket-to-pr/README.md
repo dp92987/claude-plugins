@@ -210,10 +210,15 @@ notes, not as the prescribed route.
 A summoned reviewer is a promise to handle its review. The skill waits for
 each reply where the profile says it lands, up to the profile's deadline, with
 a `Monitor` loop over the PR's reviews — no host-specific PR watchers, so it
-behaves the same in any Claude Code environment. Each
-comment is verified against the code like a pre-review finding; confirmed ones
-are fixed in a new commit pushed on top (never a force-push — reviewers have
-already seen the history), and every thread gets a reply naming the outcome.
+behaves the same in any Claude Code environment. Comments are handled in one
+pass, with no rounds, by the pre-review triage rules: graded blocking or
+non-blocking against the code, confirmed blocking ones fixed narrowly in a new
+commit pushed on top (never a force-push — reviewers have already seen the
+history), non-blocking ones taken only under the same conditions, out-of-PR
+ones listed as follow-ups. A bot's blocking finding is declined only with
+evidence in its thread and is reported by name; a human's blocking finding the
+author disagrees with goes to the user. Every thread gets a reply naming the
+outcome.
 A reviewer silent past its deadline is reported, not waited on forever.
 
 ## Jira statuses
