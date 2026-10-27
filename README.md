@@ -45,7 +45,11 @@ with no conversation context — while `Story` gets a paragraph plus its links,
 `Research` a paragraph plus a `DOD:`, and the rest no template at all.
 Section rules are grounded in named industry practice (INVEST, acceptance
 criteria, Goals/Non-goals, bug-report anatomy). Every fact is verified in its
-primary source first; the ticket is created straight away and the full text is
+primary source first; before creation a `Task` or `Bug` draft is reconciled
+with the conversation (decisions, rejected options, post-merge actions) and read
+by a fresh-context subagent that reports what it could not start, verify or
+would have to guess; DoD items and test cases are numbered so each can be
+checked. The ticket is created straight away and the full text is
 shown afterwards for correction.
 
 Skills: `jira-ticket-creator`.

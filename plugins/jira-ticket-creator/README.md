@@ -110,6 +110,19 @@ verifiable outcome, or a sprint named only as "the current one"). Missing detail
 becomes an "Открытый вопрос" section inside the ticket instead of a round of
 chat.
 
+Before that, a `Task` or `Bug` draft goes through a readiness check. The skill
+reconciles it with the conversation — every decision lands as a requirement,
+a DoD item, a test case or an explicit delegation; every rejected option in
+"Вне скоупа"; every action promised for after the merge (a prod toggle, a
+config, docs, a reply someone is waiting for) in "После мержа". Then a
+subagent with a fresh context reads only the draft and the repository and
+reports where it would start, how it would prove each DoD item and test case,
+and what it would have to guess. Gaps the session or the code can close are
+fixed in the text; decisions that need you join the open questions. DoD items
+and test cases are numbered, and a criterion visible only after rollout is
+marked as such and paired with how to observe it, so the implementer can
+verify each one.
+
 That section is never created behind your back. When the draft has one, the skill
 lists the questions and asks whether to create the ticket as is or settle them
 first — so an open question in a created ticket always means you saw it and left
