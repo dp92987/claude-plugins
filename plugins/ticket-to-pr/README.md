@@ -204,8 +204,9 @@ environment offers — the built-in subagent tool for its own provider's models,
 an orchestrator that runs other providers' agents, or the provider's CLI —
 as long as it gives a fresh context, the same working tree, the full result
 and a completion signal. The same profile therefore works in a terminal and
-in a host with task delegation. Known pitfalls of the Codex CLI are kept as
-notes, not as the prescribed route.
+in a host with task delegation. Known pitfalls of the Codex CLI are kept in a
+separate note (`references/reviewer-cli.md`), read only when a CLI is the
+route.
 
 ## PR reviews
 

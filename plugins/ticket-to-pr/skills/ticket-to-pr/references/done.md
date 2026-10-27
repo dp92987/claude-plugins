@@ -67,7 +67,7 @@ gh pr view <pr> --json state,isDraft,mergeable,mergeStateStatus,reviewDecision,h
   ```
 
   Запрос — из файла, а не строкой в `-f query='…'`: в ворктри-изоляции
-  харнесс отказывает такой команде (PX-6194, 2026-10-16).
+  харнесс отказывает такой команде.
 
 `mergeStateStatus: UNKNOWN` значит, что GitHub ещё считает: повтори запрос
 через несколько секунд, до трёх раз. Проверка ещё идёт (`IN_PROGRESS`,
