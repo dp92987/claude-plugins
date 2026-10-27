@@ -26,18 +26,23 @@ block() {
   exit 2
 }
 
+# печатает путь к acceptance.md, если каталог — ветка тикета, которую ведёт
+# конвейер; иначе ничего: файла критериев нет — охранять нечего
+ticket_acc() {
+  (
+    cd "$1" 2>/dev/null || exit 0
+    git rev-parse --show-toplevel >/dev/null 2>&1 || exit 0
+    key="$(git branch --show-current 2>/dev/null | grep -oE '[A-Za-z][A-Za-z0-9]+-[0-9]+' | head -n 1 | tr '[:lower:]' '[:upper:]')"
+    [ -n "$key" ] && [ -f "$HOME/.cache/$key/acceptance.md" ] && printf '%s' "$HOME/.cache/$key/acceptance.md"
+  )
+}
+
 # $1 — каталог коммита, $2 — флаг или путь, меняющий состав коммита (если есть)
 check_dir() {
-  cd "$1" 2>/dev/null || return 0
-  git rev-parse --show-toplevel >/dev/null 2>&1 || return 0
-
-  local branch key acc result failed checked staged
-  branch="$(git branch --show-current 2>/dev/null)"
-  key="$(printf '%s' "$branch" | grep -oE '[A-Za-z][A-Za-z0-9]+-[0-9]+' | head -n 1 | tr '[:lower:]' '[:upper:]')"
-  [ -n "$key" ] || return 0
-  acc="$HOME/.cache/$key/acceptance.md"
-  # файла критериев нет — ветку ведёт не конвейер ticket-to-pr, охранять нечего
-  [ -f "$acc" ] || return 0
+  local acc result failed checked staged
+  acc="$(ticket_acc "$1")"
+  [ -n "$acc" ] || return 0
+  cd "$1" || return 0
 
   # флаги и пути меняют состав коммита уже после проверки индекса, и в коммит
   # уходит сочетание файлов, которое не проверялось
@@ -79,7 +84,9 @@ while IFS= read -r line; do
   kind="${line%% *}"
   value="${line#* }"
   case "$kind" in
-    AMBIG) block "не удалось определить, в каком репозитории идёт коммит ($value).
+    # хук стоит во всех сессиях с плагином: неразобранную команду блокирует
+    # только там, где cwd — ветка тикета, иначе мешал бы любой работе с git
+    AMBIG) [ -z "$(ticket_acc "$CWD")" ] || block "не удалось определить, в каком репозитории идёт коммит ($value).
 Закоммить простой командой «git commit …» из ворктри тикета." ;;
     PATHS) (check_dir "${value%%|*}" "${value#*|}") || exit $? ;;
     DIR) (check_dir "$value") || exit $? ;;

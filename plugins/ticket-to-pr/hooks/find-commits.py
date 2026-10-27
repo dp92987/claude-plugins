@@ -34,6 +34,7 @@ LONG_RESHAPE = {
     "--pathspec-from-file", "--pathspec-file-nul",
 }
 REDIRECT = re.compile(r"^\d*(>>?|<<?<?|>\|)")
+HEREDOC = re.compile(r"<<(-?)[ \t]*(['\"]?)([A-Za-z_][\w-]*)\2")
 
 
 def emit(kind, value):
@@ -41,13 +42,14 @@ def emit(kind, value):
 
 
 def strip_comments(text):
-    """Убирает продолжения строк и комментарии shell с учётом кавычек.
+    """Убирает продолжения строк, комментарии и тела heredoc с учётом кавычек.
 
-    shlex не знает, что «#» открывает комментарий только в начале слова, а
-    апостроф в комментарии валит разбор всей команды.
+    shlex не знает ни что «#» открывает комментарий только в начале слова, ни
+    что такое heredoc, а апостроф в комментарии или в тексте heredoc валит
+    разбор всей команды.
     """
     text = text.replace("\\\n", " ")
-    out, quote, i = [], None, 0
+    out, quote, i, heredocs = [], None, 0, []
     while i < len(text):
         ch = text[i]
         if quote:
@@ -63,6 +65,24 @@ def strip_comments(text):
         elif ch in "'\"":
             quote = ch
             out.append(ch)
+        elif ch == "<" and not text.startswith("<<<", i) and HEREDOC.match(text, i):
+            m = HEREDOC.match(text, i)
+            heredocs.append((m.group(3), m.group(1) == "-"))
+            out.append(m.group(0))
+            i = m.end()
+            continue
+        elif ch == "\n" and heredocs:
+            out.append("\n")
+            i += 1
+            for delim, strip_tabs in heredocs:
+                while i < len(text):
+                    j = text.find("\n", i)
+                    line = text[i:j if j != -1 else len(text)]
+                    i = j + 1 if j != -1 else len(text)
+                    if (line.lstrip("\t") if strip_tabs else line) == delim:
+                        break
+            heredocs = []
+            continue
         elif ch == "#" and (i == 0 or text[i - 1] in " \t\n;&|()"):
             while i < len(text) and text[i] != "\n":
                 i += 1

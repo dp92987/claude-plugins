@@ -159,7 +159,7 @@ ticket branch that has an acceptance file. `hooks/find-commits.py` parses the
 command with a shell tokenizer, in execution order, to find every commit and
 the directory it runs in: `cd` (not leaking out of `( … )` or a pipeline),
 `git -C`, env prefixes and wrappers (`env`, `command`, `time`, …), newlines,
-comments and redirections. The parse is deliberately narrow — the gate guards
+comments, heredoc bodies and redirections. The parse is deliberately narrow — the gate guards
 against a model that forgot a step, not against deliberate evasion: `sh -c`,
 `eval`, `xargs`, aliases and functions are not followed, and the skill already
 asks for plain commands in the ticket worktree. The commit goes through only when
@@ -169,9 +169,11 @@ automated checks (`scripts/tree-hash`: HEAD's tree plus every change and new
 file, built in a throwaway index), and no tracked file has unstaged changes.
 `-a`, `--only`, `--include`, `--patch` (and their abbreviations) and
 pathspecs are refused on a ticket
-branch, because they commit a tree other than the checked index; a directory
-given by a variable is refused everywhere, because the hook cannot tell which
-repository it is. The order of steps lives in the skill text, which a model can
+branch, because they commit a tree other than the checked index. A command the
+hook cannot resolve (a directory given by a variable, an unparsable line) is
+refused only when the session's cwd is itself a ticket branch with an
+acceptance file: the hook runs in every session, and elsewhere it stays out of
+the way. The order of steps lives in the skill text, which a model can
 skip; the hook is its deterministic backstop. Branches without an acceptance
 file are not touched, and a missing `jq` or `python3` turns the hook off.
 
