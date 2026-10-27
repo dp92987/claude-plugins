@@ -2,10 +2,11 @@
 
 Take a Jira ticket to a pull request in one manual command.
 
-The pipeline is **ticket to In Progress → implement → pre-review → commit →
+The pipeline is **acceptance criteria → ticket to In Progress → implement →
+automated checks → verification against the criteria → pre-review → commit →
 push → PR → ticket to Code Review → summon reviewers → wait for and handle
-their reviews**. Implementation is the
-only mandatory step and is done by the current session; the rest is enabled by a per-team profile and, in partial
+their reviews**. Criteria, implementation and the automated checks are
+mandatory and done by the current session; the rest is enabled by a per-team profile and, in partial
 mode, picked from a checklist. Open questions found in the ticket and the
 code are asked in one round before any work starts, in both modes. Pre-review comes before the commit so that
 fixes land in the same commit and history shows the result, not the process.
@@ -35,7 +36,7 @@ key. An unmapped repository runs setup first, then continues.
 
 `/ticket-to-pr:deploy` rolls the ticket branch out before the merge, to
 exactly the contours named in the command — it never picks one itself and is
-never inferred from a plain-language request. It walks a 14-item checklist
+never inferred from a plain-language request. It walks a 15-item checklist
 and reports on every item: the PR and the services listed in its deploy
 section, contours allowed by the manifests' `allowed-datacenters`, the PR's
 pre-deploy steps confirmed, master merged into the branch, CI green on HEAD
@@ -58,7 +59,9 @@ phase (preparing, deploying, each finished contour, health check).
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
 lock or resolves a merge conflict on its own. The ticket moves to the
 profile's `При деплое:` status at the start: running the command is the
-decision that it is ready to deploy.
+decision that it is ready to deploy. The last item checks the ticket's
+criteria that are observable only after rollout (logs, metrics on the deployed
+contours) and records each result, or "too early", in the criteria file.
 
 ## Done
 
@@ -72,7 +75,13 @@ listed; `--admin` and `--auto` are never used. The merge uses the profile's
 method (`gh pr merge --squash`) pinned with `--match-head-commit` to the
 commit that was checked, so a push in between makes GitHub refuse. Only after
 the PR reads `MERGED` is the ticket moved along the path to the profile's
-`Финиш:` status.
+`Финиш:` status — and only when no follow-up is left open: the ticket's
+"После мержа" items (a prod toggle, a config, docs, a reply someone is
+waiting for) and post-rollout criteria the deploy has not confirmed. Done asks
+which of them are already done, since a session cannot see a reply or a prod
+toggle; anything still open keeps the ticket in its current status, is listed
+in the report and, on the merging run, posted as a ticket comment. Running
+done again on the merged PR skips the merge and re-checks the follow-ups.
 
 Then done cleans up after the ticket: the worktree the PR branch is checked
 out in is removed with `git worktree remove` and the local branch with
@@ -107,7 +116,8 @@ committed and pushed only with consent. Closed events move to
 Everything team-specific lives in `profiles/<name>.md` under the plugin's data
 directory (`~/.claude/plugins/data/ticket-to-pr-<marketplace>/`), picked by
 the repo's git remote via `config.md`. Sections: `Jira` (site, cloudId),
-`Ветка` (base, naming), `Проверка` (test/lint commands), `Pre-review`
+`Ветка` (base, naming), `Проверка` (test/lint commands), `Верификация`
+(the model of the criteria verifier), `Pre-review`
 (Claude subagent with a model id, Codex, or both), `Коммит` (message format),
 `PR` (a PR-creating skill named in the profile, or `gh pr create` rules),
 `Ревьюеры` (name → summon command → where the reply lands and how long to wait
@@ -118,6 +128,28 @@ wait deadlines),
 `Статусы` (the ticket's path through the workflow and
 the statuses to reach before work, after the PR and after the merge). A missing optional
 section removes the step. Profiles are plain markdown, so a team creates its own by running setup once.
+
+## Verification
+
+Right after the question round and before any code, the ticket's `DOD:`,
+`Definition of Done` and `Тесты` items are copied verbatim into
+`~/.cache/<ticket>/acceptance.md`, each bound to how it will be proven: a test,
+a command, or an observation after rollout. Deciding what counts as done is
+the ticket author's job; the skill only binds each item to a check, and asks
+only when the ticket has no `DOD:`, the `DOD:` is preliminary, or an item
+cannot be checked. The file changes later only through a question to the
+user, and the ticket is updated with it.
+
+Tests for the criteria are written before the fix. The automated checks run
+the profile's commands, prove every new test fails with the production
+changes stashed, and list test-weakening signals (deleted cases, added skips,
+changed expectations). Then an independent Claude subagent — fresh context,
+no author session — reruns the evidence itself and reports per criterion
+(met / not met / after rollout / unverifiable), diff hunks that serve no
+criterion or fall out of scope, and whether each test change is legitimate.
+Up to two fix rounds; a criterion still unmet stops the pipeline before the
+commit. Fixes from pre-review and PR reviews rerun the automated checks and,
+when they touch the evidence, the verifier.
 
 ## Pre-review
 

@@ -78,7 +78,12 @@ Skills: `github-pr-creator`.
 Take a Jira ticket to a pull request in one manual command:
 `/ticket-to-pr:full <ticket>` runs every step the repo's profile enables with
 no process questions, `/ticket-to-pr:partial <ticket>` shows a checklist first.
-The pipeline is implement (in the current session) → adversarial pre-review by
+The pipeline is acceptance criteria copied verbatim from the ticket's DoD and
+tests, each bound to a check → implement (in the current session, tests first)
+→ automated checks (profile commands, every new test proven to fail without
+the fix, test-weakening signals) → verification of every criterion by an
+independent Claude subagent (up to two fix rounds, an unmet criterion stops
+before the commit) → adversarial pre-review by
 a Claude subagent and/or Codex, with confirmed findings fixed and one re-check
 → commit → push → PR (via a PR-creating skill named in the profile) → summon
 the team's PR reviewers (Copilot through the reviewers API, Claude through an
