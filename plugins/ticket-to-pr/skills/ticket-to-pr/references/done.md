@@ -74,6 +74,14 @@ gh pr view <pr> --json state,isDraft,mergeable,mergeStateStatus,reviewDecision,h
 `QUEUED`, `PENDING`) — PR не зелёный: назови, что идёт, и остановись; ждать не
 нужно, пользователь вызовет команду снова.
 
+`mergeStateStatus: UNSTABLE` при зелёном `statusCheckRollup` — посмотри
+прогоны Actions этого коммита:
+`gh api 'repos/<o>/<r>/actions/runs?head_sha=<sha>&per_page=100' --jq '.workflow_runs[] | select(.conclusion == "action_required") | .html_url'`.
+`action_required` — workflow, который запустил бот, ждёт ручного одобрения;
+это не проверка кода, но PR от него не зелёный. Остановись и назови прогоны
+ссылками: снимает их «Approve and run» в GitHub, после него пользователь
+вызовет команду снова (PX-5412, 2026-10-28: «Claude Code» на ревью Copilot).
+
 Не зелёный — остановись и перечисли невыполненные условия: имя проверки и
 ссылку на неё, номер треда, состояние мержа.
 
