@@ -52,9 +52,16 @@ OOMKilled, old ReplicaSet scaled down, error logs before vs after, consumer lag
 for workers and 5xx share for HTTP services. CPU, memory and latency are not
 checked: the deploy-referee judges them against absolute thresholds rather
 than the pre-deploy level, so its verdicts are left to its channel. Only services (Deployments) on prod contours are health-checked: a dev-only deploy and CronJob tasks on any contour report the rollout
-result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one run per distinct set of contours, dev counted like any prod contour, all runs in parallel with no "dev first" gate — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check is taken once all runs with prod contours finish.
+result alone, and each service gets the named contours its manifests allow (the PR's deploy block is only cross-checked), and the rollout is a plan of rectangular runs — one run per distinct set of contours, all runs in parallel — so no service is ever sent to a contour it isn't allowed in (the deployer may fail on it even when the manifest's whitelist would skip it); the prod health check is taken once all runs with prod contours finish.
 Master is merged into the branch only when its new commits touch the deployed
-services or the packages they import. A one-line status is posted at every
+services or the packages they import. A contour the profile gives a shared
+branch (a weekly dev branch the team merges into) is deployed only in a call
+of its own: the PR's changes are merged into that branch without a checkout
+(`git merge-tree`, `commit-tree`, a plain push; a merged PR via
+`pull/<N>/head`, nothing when they are already there), and the freshest green
+build of the branch is rolled out — no master check, no lock check, no
+current-state read; the rollback is a revert of that merge, and a conflict is
+reported, not resolved. A one-line status is posted at every
 phase (preparing, deploying, each finished contour, health check).
 Any ❌ stops the run with a report — it never rolls back, restarts, takes a
 lock or resolves a merge conflict on its own. The ticket moves to the
